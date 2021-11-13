@@ -34,7 +34,7 @@ class Main(object):
         self.all_report_df = None
         self.save_folder_path = StringVar()
         self.result_df = None
-        self.version = 'v1.11.13.beta'
+        self.version = 'v1.11.13'
 
     def _get_ending(self):
         ending_path = askopenfilename()

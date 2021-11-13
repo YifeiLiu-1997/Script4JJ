@@ -10,6 +10,7 @@
 
 import datetime
 import os
+import sys
 import time
 
 import pandas as pd
@@ -178,10 +179,14 @@ class Main(object):
                 # print(execute_str)
                 execute_str = execute.read()
                 print(execute_str)
-                if 'Already up to date' in execute_str or 'files changed' in execute_str:
+                if 'Already up to date' in execute_str or 'file changed' in execute_str or 'files changed' in execute_str:
                     messagebox.showinfo(title='成功', message='更新成功，请重新启动')
                     self.window.destroy()
-                    return True
+                    # 打开新的
+                    try:
+                        sys.exit(0)
+                    finally:
+                        os.system(os.getcwd() + '/main.py')
             messagebox.showinfo(title='失败', message='更新失败，可能无更新或多次尝试后更新失败')
         else:
             return False

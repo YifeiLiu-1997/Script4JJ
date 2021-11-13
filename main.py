@@ -33,7 +33,7 @@ class Main(object):
         self.all_report_df = None
         self.save_folder_path = StringVar()
         self.result_df = None
-        self.version = 'v1.11.13.beta版'
+        self.version = 'v1.11.13.beta'
 
     def _get_ending(self):
         ending_path = askopenfilename()
@@ -187,7 +187,7 @@ class Main(object):
             return False
 
     def run(self):
-        self.window.title(f'♥ only for JJ ♥ : version: {self.version}')
+        self.window.title(f'Only For JJ : version: {self.version}')
         self.window.geometry('850x400')
         self.wrong_message = StringVar()
 

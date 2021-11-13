@@ -33,7 +33,7 @@ class Main(object):
         self.all_report_df = None
         self.save_folder_path = StringVar()
         self.result_df = None
-        self.version = 'v1.11.13'
+        self.version = 'v1.11.13.beta'
 
     def _get_ending(self):
         ending_path = askopenfilename()
@@ -171,10 +171,12 @@ class Main(object):
             os.popen('cd ' + current_path)
             execute = os.popen('git pull')
             for i in range(5):
-                time.sleep(1)
-                execute_str = ''
-                if execute.readlines() != []:
-                    execute_str = execute.readlines()[0]
+                time.sleep(2)
+                # execute_str = ''
+                # if execute.readlines() != []:
+                #     execute_str = execute.readlines()[0]
+                # print(execute_str)
+                execute_str = execute.read()
                 print(execute_str)
                 if 'Already up to date' in execute_str:
                     messagebox.showinfo(title='成功', message='更新成功，请重新启动')

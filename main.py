@@ -34,7 +34,7 @@ class Main(object):
         self.all_report_df = None
         self.save_folder_path = StringVar()
         self.result_df = None
-        self.version = 'v1.11.13.01'
+        self.version = 'v1.11.13.02'
 
     def _get_ending(self):
         ending_path = askopenfilename()
@@ -189,6 +189,7 @@ class Main(object):
                         os.system(os.getcwd() + '/main.py')
                 if 'Already up to date' in execute_str:
                     messagebox.showinfo(title='无可用更新', message='无可用更新')
+                    return False
             messagebox.showinfo(title='失败', message='更新失败，可能无更新或多次尝试后更新失败')
         else:
             return False
@@ -199,6 +200,8 @@ class Main(object):
         message = '版本 v1.11.13\n更新内容:\n1. Mailroom/lobby 转为人工判断'
         # v1.11.13.01
         message += '\n\n版本 v1.11.13.01\n更新内容:\n1. 解决 POD 存在 nan 的情况'
+        # v1.11.13.02
+        message += '\n\n版本 v1.11.13.02\n更新内容:\n1. 增加更新状态，“无可用更新”'
         messagebox.showinfo(
             title='更新内容',
             message=message

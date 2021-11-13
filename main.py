@@ -33,7 +33,7 @@ class Main(object):
         self.all_report_df = None
         self.save_folder_path = StringVar()
         self.result_df = None
-        self.version = 'v1.11.10'
+        self.version = 'v1.11.13'
 
     def _get_ending(self):
         ending_path = askopenfilename()
@@ -164,7 +164,7 @@ class Main(object):
         # 获取当前文件夹地址
         current_path = os.getcwd()
         print(current_path)
-        decision = messagebox.askokcancel(title='新版本', message='检查到新版本，是否更新？')
+        decision = messagebox.askokcancel(title='更新检测', message='是否检测更新？')
         print(decision)
         if decision:
             # 开始执行 git pull

@@ -34,7 +34,7 @@ class Main(object):
         self.all_report_df = None
         self.save_folder_path = StringVar()
         self.result_df = None
-        self.version = 'v1.11.13'
+        self.version = 'v1.11.13.01'
 
     def _get_ending(self):
         ending_path = askopenfilename()
@@ -193,7 +193,10 @@ class Main(object):
 
     @staticmethod
     def show_update():
+        # v1.11.13
         message = '版本 v1.11.13\n更新内容:\n1. Mailroom/lobby 转为人工判断'
+        # v1.11.13.01
+        message += '\n\n版本 v1.11.13.01\n更新内容:\n1. 解决 POD 存在 nan 的情况'
         messagebox.showinfo(
             title='更新内容',
             message=message

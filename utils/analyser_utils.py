@@ -28,6 +28,12 @@ def get_week_num(data_frame_row):
         return data_frame_row
 
 
+def nan_to_none(x):
+    if str(x) == 'nan' or pd.isna(x):
+        return ''
+    return x
+
+
 def copy_reason(data_frame_row, index):
     # print('values', data_frame_row['POD Valid?'].values[0])
     # print('values', data_frame_row['Issue Category'].values[0])
@@ -37,8 +43,8 @@ def copy_reason(data_frame_row, index):
         pd.isna(data_frame_row['Issue Category'].values[0]) and pd.isna(data_frame_row['Delivery Comments'].values[0]) and \
         pd.isna(data_frame_row['AH Assessment'].values[0]):
         # print('全是空的')
-        data_frame_row['POD Valid?'] = copy_df['POD Valid?'].values
-        data_frame_row['POD Quality'] = copy_df['POD Quality'].values
+        data_frame_row['POD Valid?'] = [nan_to_none(copy_df['POD Valid?'].values[0])]
+        data_frame_row['POD Quality'] = [nan_to_none(copy_df['POD Quality'].values[0])]
         data_frame_row['Issue Category'] = copy_df['Issue Category'].values
         data_frame_row['Delivery Comments'] = copy_df['Delivery Comments'].values
         data_frame_row['AH Assessment'] = copy_df['AH Assessment'].values
@@ -47,8 +53,8 @@ def copy_reason(data_frame_row, index):
     # 如果不是空的，加一个 / 再将内容附着上
     else:
         # print('不是空的')
-        data_frame_row['POD Valid?'] = [str(copy_df['POD Valid?'].values[0])]
-        data_frame_row['POD Quality'] = [str(copy_df['POD Quality'].values[0])]
+        data_frame_row['POD Valid?'] = [nan_to_none(str(copy_df['POD Valid?'].values[0]))]
+        data_frame_row['POD Quality'] = [nan_to_none(str(copy_df['POD Quality'].values[0]))]
         data_frame_row['Issue Category'] = [str(data_frame_row['Issue Category'].values[0]) + '/' + str(copy_df['Issue Category'].values[0])]
         data_frame_row['Delivery Comments'] = [str(data_frame_row['Delivery Comments'].values[0]) + '/' + str(copy_df['Delivery Comments'].values[0])]
         data_frame_row['AH Assessment'] = [str(data_frame_row['AH Assessment'].values[0]) + '/' + str(copy_df['AH Assessment'].values[0])]

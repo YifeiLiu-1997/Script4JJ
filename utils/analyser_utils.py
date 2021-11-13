@@ -213,16 +213,16 @@ def get_status(data_frame_row, day):
 
     if data_frame_row['Drop off status'].values[0] == 'SUCCEEDED':
         # 先填 mail room 等
-        if 'Mailbox'.lower() in str(data_frame_row['Drop off remark'].values[0]).lower():
-            data_frame_row = copy_reason(data_frame_row, 115)
-        elif 'Mailroom'.lower() in str(data_frame_row['Drop off remark'].values[0]).lower():
-            data_frame_row = copy_reason(data_frame_row, 115)
-
-        elif 'lobby'.lower() in str(data_frame_row['Drop off remark'].values[0]).lower():
-            data_frame_row = copy_reason(data_frame_row, 111)
-        elif 'outside gate'.lower() in str(data_frame_row['Drop off remark'].values[0]).lower():
-            data_frame_row = copy_reason(data_frame_row, 114)
-        elif 'no access'.lower() in str(data_frame_row['Drop off remark'].values[0]).lower():
+        # if 'Mailbox'.lower() in str(data_frame_row['Drop off remark'].values[0]).lower():
+        #     data_frame_row = copy_reason(data_frame_row, 115)
+        # elif 'Mailroom'.lower() in str(data_frame_row['Drop off remark'].values[0]).lower():
+        #     data_frame_row = copy_reason(data_frame_row, 115)
+        #
+        # elif 'lobby'.lower() in str(data_frame_row['Drop off remark'].values[0]).lower():
+        #     data_frame_row = copy_reason(data_frame_row, 111)
+        # elif 'outside gate'.lower() in str(data_frame_row['Drop off remark'].values[0]).lower():
+        #     data_frame_row = copy_reason(data_frame_row, 114)
+        if 'no access'.lower() in str(data_frame_row['Drop off remark'].values[0]).lower():
             data_frame_row = copy_reason(data_frame_row, 14)
         elif 'no answer'.lower() in str(data_frame_row['Drop off remark'].values[0]).lower():
             data_frame_row = copy_reason(data_frame_row, 14)

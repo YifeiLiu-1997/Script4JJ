@@ -168,7 +168,7 @@ class Analyser(object):
             result_dict = self.get_dict_from_tracking_code(
                 tracking_code=self.data_frame.loc[self.index, 'Tracking Code']
             )
-            if 'dropoff_note' in result_dict['result'][0]['shipment'].keys():
+            if 'dropoff_note' in result_dict['results'][0]['shipment'].keys():
                 self.client_comment.set(result_dict['shipment']['dropoff_note'])
             else:
                 self.client_comment.set('')

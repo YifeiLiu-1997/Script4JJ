@@ -191,6 +191,14 @@ class Main(object):
         else:
             return False
 
+    @staticmethod
+    def show_update():
+        message = '版本 v1.11.13\n更新内容:\n1. Mailroom/lobby 转为人工判断'
+        messagebox.showinfo(
+            title='更新内容',
+            message=message
+        )
+
     def run(self):
         self.window.title(f'Only For JJ : version: {self.version}')
         self.window.geometry('850x400')
@@ -219,7 +227,8 @@ class Main(object):
         # button
         Button(self.window, text='next', width='10', command=self.generate_csv).place(x=680, y=300)
         Button(self.window, text='merge', width='12', command=self.concat_all_csv).place(x=100, y=300)
-        Button(self.window, text='update', width='12', command=self.get_update).place(x=390, y=300)
+        Button(self.window, text='update', width='12', command=self.get_update).place(x=295, y=300)
+        Button(self.window, text='update comments', width='18', command=self.show_update).place(x=470, y=300)
 
         self.window.mainloop()
 

@@ -200,7 +200,7 @@ class Main(object):
         )
 
     def run(self):
-        self.window.title(f'Only For JJ : version: {self.version}')
+        self.window.title(f'♥ Only For JJ ♥ : version: {self.version}')
         self.window.geometry('850x400')
         self.wrong_message = StringVar()
 

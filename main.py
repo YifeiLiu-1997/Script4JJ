@@ -33,7 +33,7 @@ class Main(object):
         self.all_report_df = None
         self.save_folder_path = StringVar()
         self.result_df = None
-        self.version = 'v1.11.13.beta'
+        self.version = 'v1.11.13.beta版'
 
     def _get_ending(self):
         ending_path = askopenfilename()
@@ -213,8 +213,8 @@ class Main(object):
 
         # button
         Button(self.window, text='next', width='10', command=self.generate_csv).place(x=680, y=300)
-        Button(self.window, text='打开合并界面', width='12', command=self.concat_all_csv).place(x=100, y=300)
-        Button(self.window, text='获取更新', width='12', command=self.get_update).place(x=390, y=300)
+        Button(self.window, text='merge', width='12', command=self.concat_all_csv).place(x=100, y=300)
+        Button(self.window, text='update', width='12', command=self.get_update).place(x=390, y=300)
 
         self.window.mainloop()
 

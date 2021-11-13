@@ -172,7 +172,9 @@ class Main(object):
             execute = os.popen('git pull')
             for i in range(5):
                 time.sleep(1)
-                execute_str = execute.readlines()[0]
+                execute_str = ''
+                if execute.readlines() != []:
+                    execute_str = execute.readlines()[0]
                 print(execute_str)
                 if 'Already up to date' in execute_str:
                     messagebox.showinfo(title='成功', message='更新成功，请重新启动')

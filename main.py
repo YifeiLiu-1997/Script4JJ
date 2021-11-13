@@ -178,7 +178,7 @@ class Main(object):
                 # print(execute_str)
                 execute_str = execute.read()
                 print(execute_str)
-                if 'Already up to date' in execute_str:
+                if 'Already up to date' in execute_str or 'files changed' in execute_str:
                     messagebox.showinfo(title='成功', message='更新成功，请重新启动')
                     self.window.destroy()
                     return True
@@ -187,7 +187,7 @@ class Main(object):
             return False
 
     def run(self):
-        self.window.title(f'姬姬工作专用软件 version: {self.version}')
+        self.window.title(f'♥ only for JJ ♥ : version: {self.version}')
         self.window.geometry('850x400')
         self.wrong_message = StringVar()
 

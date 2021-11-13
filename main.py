@@ -179,14 +179,16 @@ class Main(object):
                 # print(execute_str)
                 execute_str = execute.read()
                 print(execute_str)
-                if 'Already up to date' in execute_str or 'file changed' in execute_str or 'files changed' in execute_str:
-                    messagebox.showinfo(title='成功', message='更新成功，请重新启动')
+                if 'file changed' in execute_str or 'files changed' in execute_str:
+                    messagebox.showinfo(title='更新成功', message='更新成功，请重新启动')
                     self.window.destroy()
                     # 打开新的
                     try:
                         sys.exit(0)
                     finally:
                         os.system(os.getcwd() + '/main.py')
+                if 'Already up to date' in execute_str:
+                    messagebox.showinfo(title='无可用更新', message='无可用更新')
             messagebox.showinfo(title='失败', message='更新失败，可能无更新或多次尝试后更新失败')
         else:
             return False

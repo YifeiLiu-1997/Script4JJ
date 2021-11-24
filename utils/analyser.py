@@ -466,9 +466,9 @@ class Analyser(object):
                     img_url_response = session.get(img_url['url'])
 
                     # 写入文件到 cache
-                    with open(f'utils/img_cache/{img_url[-10:]}.png', 'wb') as fp:
+                    with open(f'utils/img_cache/{img_url["url"][-10:]}.png', 'wb') as fp:
                         fp.write(img_url_response.content)
-                        imgs.append(f'utils/img_cache/{img_url[-10:]}.png')
+                        imgs.append(f'utils/img_cache/{img_url["url"][-10:]}.png')
 
                 if 'street2' in result_dict['results'][0]['shipment']['dropoff_address'].keys():
                     address_street2 = result_dict['results'][0]['shipment']['dropoff_address']['street2'] + ' '

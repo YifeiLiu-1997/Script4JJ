@@ -193,6 +193,7 @@ class Main(object):
         if decision:
             # 开始执行 git pull
             os.popen('cd ' + current_path)
+            os.popen('git reset --hard')
             execute = os.popen('git pull')
             for i in range(5):
                 time.sleep(2)

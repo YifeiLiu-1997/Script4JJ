@@ -144,12 +144,23 @@ class Analyser(object):
             self.temp_window.pack(pady=20)
 
             # button_next 的函数为 next_page
-            Button(self.window, text='上一页', command=self.prev_page).place(x=100, y=100)
-            Button(self.window, text='下一页', command=self.next_page).place(x=300, y=100)
-            Button(self.window, text='确定', command=self.confirm).place(x=900, y=100)
+            prev_button = Button(self.window, text='上一页')
+            prev_button.place(x=100, y=100)
+
+            next_button = Button(self.window, text='下一页')
+            next_button.place(x=300, y=100)
+
+            confirm_button = Button(self.window, text='确定')
+            confirm_button.place(x=900, y=100)
+
             Button(self.window, text='清除缓存', command=self.clear_cache).place(x=1200, y=100)
             Button(self.window, text='显示照片', command=self.show_pic).place(x=1100, y=100)
             Button(self.window, text='提交', command=self.hand_in_result).place(x=1300, y=100)
+
+            # 绑定按键
+            self.window.bind('<Down>', self.next_page)
+            self.window.bind('<Up>', self.prev_page)
+            self.window.bind('<Return>', self.confirm)
 
             # 设置一个框，用于填对应的序号
             self.answer = StringVar()
@@ -234,12 +245,22 @@ class Analyser(object):
             self.temp_window.pack(pady=20)
 
             # button_next 的函数为 next_page
-            Button(self.window, text='上一页', command=self.prev_page).place(x=100, y=100)
-            Button(self.window, text='下一页', command=self.next_page).place(x=300, y=100)
-            Button(self.window, text='确定', command=self.confirm).place(x=900, y=100)
+            prev_button = Button(self.window, text='上一页', command=self.prev_page)
+            prev_button.place(x=100, y=100)
+
+            next_button = Button(self.window, text='下一页', command=self.next_page)
+            next_button.place(x=300, y=100)
+
+            confirm_button = Button(self.window, text='确定', command=self.confirm)
+            confirm_button.place(x=900, y=100)
             Button(self.window, text='清除缓存', command=self.clear_cache).place(x=1200, y=100)
             Button(self.window, text='显示照片', command=self.show_pic).place(x=1100, y=100)
             Button(self.window, text='提交', command=self.hand_in_result).place(x=1300, y=100)
+
+            # 绑定按键
+            self.window.bind('<Down>', self.next_page)
+            self.window.bind('<Up>', self.prev_page)
+            self.window.bind('<Return>', self.confirm)
 
             # 设置一个框，用于填对应的序号
             self.answer = StringVar()
@@ -267,7 +288,9 @@ class Analyser(object):
             # 一堆逻辑 显示出图片和详细地址文字
             self.window.mainloop()
 
-    def next_page(self):
+
+
+    def next_page(self, event):
         self.index = self.index + 1
         if self.index >= len(self.data_frame['Tracking Code']):
             # 到达最底下了
@@ -286,7 +309,7 @@ class Analyser(object):
             self.client_comment.set('')
         self.temp_window.delete(f'item{self.index-1}')
 
-    def prev_page(self):
+    def prev_page(self, event):
         self.index = self.index - 1
         if self.index < 0:
             # 到达最开始了
@@ -522,7 +545,7 @@ class Analyser(object):
         file_size = file_size / float(1024 * 1024)
         return round(file_size, 2)
 
-    def confirm(self):
+    def confirm(self, event):
         print(self.answer)
         print(self.answer.get())
         answer_index = self.answer.get()

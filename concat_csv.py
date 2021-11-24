@@ -1,11 +1,14 @@
 import pandas as pd
 import os
 
-from tkinter import Tk, StringVar, Label, Button, Entry, messagebox
+from tkinter import Toplevel, StringVar, Label, Button, Entry, messagebox
 from tkinter.filedialog import askdirectory
 
 
 class Concat(object):
+    def __init__(self, root):
+        self.root = root
+
     def get_folder_path(self):
         folder_path = askdirectory()
         self.folder_path.set(folder_path)
@@ -23,8 +26,7 @@ class Concat(object):
         return res_df
 
     def run(self):
-        self.window = Tk()
-        self.window.title('合并 all_report 文件')
+        self.window = Toplevel(master=self.root)
         self.window.geometry('1000x120')
         self.folder_path = StringVar()
 
@@ -35,10 +37,5 @@ class Concat(object):
 
         # button
         Button(self.window, text='生成', width='10', command=self.concat_from_folder).place(x=780, y=50)
-
+        print(self.window.focus)
         self.window.mainloop()
-
-
-if __name__ == '__main__':
-    c = Concat()
-    c.run()

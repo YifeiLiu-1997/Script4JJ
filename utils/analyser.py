@@ -7,12 +7,13 @@ import requests
 import cv2.cv2 as cv2
 import datetime
 
-from tkinter import Tk, ttk, Button, messagebox, StringVar, Label, Entry, Toplevel
+from tkinter import ttk, Button, messagebox, StringVar, Label, Entry, Toplevel
 from requests_ntlm import HttpNtlmAuth
 
 
 class Analyser(object):
-    def __init__(self, first_analysed_df, save_path, day):
+    def __init__(self, root, first_analysed_df, save_path, day):
+        self.root = root
         self.source_df = first_analysed_df.reset_index(drop=True)
         self.data_frame = self.initialize_df(first_analysed_df)
         self.window = None
@@ -85,7 +86,7 @@ class Analyser(object):
         # 一堆逻辑 列出当前 index 的 dataframe，周四
         # 周四
         if self.day == '4':
-            self.window = Toplevel()
+            self.window = Toplevel(master=self.root)
             self.param_dict = self.initialize_param_dict()
             self.temp_window = ttk.Treeview(self.window, show='headings')
             # 加入各种列
@@ -153,7 +154,7 @@ class Analyser(object):
             # 设置一个框，用于填对应的序号
             self.answer = StringVar()
             Label(self.window, text="此条记录的问题，对应的 JJ 序号:").place(x=500, y=100)
-            entry = Entry(self.window, width='5', textvariable=self.answer).place(x=720, y=100)
+            Entry(self.window, width='5', textvariable=self.answer).place(x=720, y=100)
 
             # 显示 tracking code
             self.tracking_code = StringVar()
@@ -178,7 +179,7 @@ class Analyser(object):
 
         # 周三
         elif self.day == '3':
-            self.window = Toplevel()
+            self.window = Toplevel(master=self.root)
             self.param_dict = self.initialize_param_dict()
             self.temp_window = ttk.Treeview(self.window, show='headings')
             # 加入各种列
@@ -436,7 +437,7 @@ class Analyser(object):
         # 如果存在照片，就显示
         if result_dict['results'][0]['pod']['images'] != []:
             # 如果是单张照片
-            if isinstance(result_dict['results'][0]['pod']['images'][0]['url'], str):
+            if len(result_dict['results'][0]['pod']['images']) == 1:
                 img_url = result_dict['results'][0]['pod']['images'][0]['url']
                 img_url_response = session.get(img_url)
 
@@ -459,7 +460,7 @@ class Analyser(object):
                 cv2.imshow(f"address: {address}", img)
                 cv2.waitKey()
             # 多张照片
-            if isinstance(result_dict['results'][0]['pod']['images'][0]['url'], list):
+            if len(result_dict['results'][0]['pod']['images']) > 1:
                 imgs = []
                 for img_url in result_dict['results'][0]['pod']['images']:
                     img_url_response = session.get(img_url['url'])
@@ -502,12 +503,24 @@ class Analyser(object):
 
     def clear_cache(self):
         del_list = os.listdir('utils/img_cache')
+        if len(del_list) == 0:
+            messagebox.showinfo(title='清除失败', message='无缓存')
+            return
+        file_size_sum = 0
         for f in del_list:
             file_path = os.path.join('utils/img_cache', f)
             if os.path.isfile(file_path):
                 os.remove(file_path)
+                file_size_sum += self.get_filesize(file_path)
             elif os.path.isdir(file_path):
                 shutil.rmtree(file_path)
+        messagebox.showinfo(title='清除成功', message=f'清除缓存共 {file_size_sum}mb')
+
+    @staticmethod
+    def get_filesize(file_path):
+        file_size = os.path.getsize(file_path)
+        file_size = file_size / float(1024 * 1024)
+        return round(file_size, 2)
 
     def confirm(self):
         print(self.answer)
@@ -572,8 +585,6 @@ def process_image(img):
     else:
         top, bottom, left, right = (min_side-new_h)/2 + 1, (min_side-new_h)/2, (min_side-new_w)/2 + 1, (min_side-new_w)/2
     pad_img = cv2.copyMakeBorder(resize_img, int(top), int(bottom), int(left), int(right), cv2.BORDER_CONSTANT, value=[0,0,0]) #从图像边界向上,下,左,右扩的像素数目
-    #print pad_img.shape
-    #cv2.imwrite("after-" + os.path.basename(filename), pad_img)
     return pad_img
 
 
@@ -610,20 +621,3 @@ class Wednesday(object):
             result = pd.concat([result, temp])
         result['Updated Reason Code'] = result['AH Assessment']
         return result
-
-
-if __name__ == '__main__':
-    class t():
-        def run(self):
-            window = Tk()
-            self.param = StringVar()
-            Entry(window, width='5', textvariable=self.param).place(x=100, y=100)
-            Button(window, text='确定', command=self.get_param).place(x=150, y=100)
-            window.mainloop()
-
-        def get_param(self):
-            a = self.param.get()
-            print(a)
-
-    t = t()
-    t.run()

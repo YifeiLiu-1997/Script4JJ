@@ -16,7 +16,7 @@ import time
 import pandas as pd
 import concat_csv
 
-from tkinter import messagebox, Tk, StringVar, Label, Button, Entry, Text
+from tkinter import messagebox, Tk, StringVar, Label, Button, Entry, Text, Toplevel
 from tkinter.font import Font
 from tkinter.filedialog import askopenfilename, askdirectory
 from utils.preprocessing_data import preprocessing_data
@@ -34,7 +34,10 @@ class Main(object):
         self.all_report_df = None
         self.save_folder_path = StringVar()
         self.result_df = None
-        self.version = 'v1.11.13.02'
+        self.version = 'v1.11.24.01'
+        self.day = None
+        self.structured_df = None
+        self.message = None
 
     def _get_ending(self):
         ending_path = askopenfilename()
@@ -70,12 +73,18 @@ class Main(object):
             structured_df = structured_df[pd.isna(structured_df['Client'])]
 
         if structured_df.empty:
-            messagebox.showinfo(title='成功', message='没有任何问题，可以继续进行')
+            choice = messagebox.askyesno(title='成功', message='没有任何问题，是否继续')
+            if choice:
+                self.next()
+            else:
+                return None
         else:
-            tk = Tk()
+            self.message = Toplevel(master=self.window)
+            self.message.geometry('1200x600')
+            self.message.title = '有错误'
             # 设置一个 Text
             font = Font(size=16)
-            text = Text(tk, width=150, height=20, font=font)
+            text = Text(self.message, width=80, height=20, font=font)
 
             date_list = structured_df['Scheduled Delivery Date'].to_list()
             tracking_code_list = structured_df['Tracking Code'].to_list()
@@ -98,51 +107,65 @@ class Main(object):
 
             text.pack()
             text.insert('insert', message)
-            tk.mainloop()
+
+            Button(self.message, text='退出并继续', command=self.next).place(x=600, y=500)
+            self.message.mainloop()
+
+    def pre_check(self):
+        if self.ending_path.get() == '' or self.boss2me_path.get() == '' or self.all_report_path.get() == '' or \
+                self.save_folder_path.get() == '':
+            messagebox.showwarning(title='警告', message='有尚未选择的路径')
 
     def generate_csv(self):
+        # 先检查是否选择路径
+        self.pre_check()
         self.ending_df = pd.read_csv(self.ending_path.get())
         self.boss2me_df = pd.read_csv(self.boss2me_path.get())
         self.all_report_df = pd.read_csv(self.all_report_path.get())
 
         # 首先，经过一个筛选函数，将各种客户进行初处理，合并到一起
+        structured_df = None
         if 'wednesday' in self.ending_path.get().lower():
             structured_df = preprocessing_data(self.ending_df, self.boss2me_df, self.all_report_df, day='3')
             structured_df = structured_df.rename(columns={'delivery_date': 'Scheduled Delivery Date'})
         elif 'thursday' in self.ending_path.get().lower():
             structured_df = preprocessing_data(self.ending_df, self.boss2me_df, self.all_report_df, day='4')
         else:
-            structured_df = None
-            print('没有这个日期')
-            return
+            messagebox.showinfo(title='错误', message='ending file 有误，请检查')
 
         # 生成 csv
         date_time = datetime.datetime.now().strftime('%Y-%m-%d %H-%M-%S')
         structured_df.to_csv(str(self.save_folder_path.get()) + '/初版' + date_time + '.csv', index=False)
+        self.structured_df = structured_df
 
         # 开始逐行分析已经结构化的 dataframe，通过老板发的，（行要一致）
         if 'thursday' in str(self.ending_path.get()).lower():
             # 如果发现日期没对齐，显示出少了那些日期
-            self.get_message(structured_df, day='4')
+            self.day = '4'
+            self.get_message(structured_df, day=self.day)
 
-            thursday = Thursday(structured_df)
+        elif 'wednesday' in str(self.ending_path.get()).lower():
+            # 如果发现日期没对齐，显示出少了那些日期
+            self.day = '3'
+            self.get_message(structured_df, day=self.day)
+
+    def next(self):
+        if self.day == '4':
+            thursday = Thursday(self.structured_df)
             self.result_df = thursday.analyse()
 
             # 生成 csv
             date_time = datetime.datetime.now().strftime('%Y-%m-%d %H-%M-%S')
             self.result_df.to_csv(str(self.save_folder_path.get()) + '/first' + date_time + '.csv', index=False)
 
-            analyser = Analyser(self.result_df, self.save_folder_path.get(), '4')
+            analyser = Analyser(self.window, self.result_df, self.save_folder_path.get(), '4')
             analyser.run()
 
-        elif 'wednesday' in str(self.ending_path.get()).lower():
-            # 如果发现日期没对齐，显示出少了那些日期
-            self.get_message(structured_df, day='3')
-
+        elif self.day == '3':
             # 周三的一些列名先改一下
-            structured_df.rename(columns={'Drop off Time': 'Drop off time'}, inplace=True)
+            self.structured_df.rename(columns={'Drop off Time': 'Drop off time'}, inplace=True)
 
-            wednesday = Wednesday(structured_df)
+            wednesday = Wednesday(self.structured_df)
             self.result_df = wednesday.analyse()
 
             # 周三的一些列名先改回来
@@ -150,15 +173,15 @@ class Main(object):
 
             # 生成 csv
             res_df = self.result_df.copy()
-            res_df = res_df.drop(columns=['POD Quality', 'Week#', 'Updated Reason Code'])
+            res_df = res_df.drop(columns=['Week#', 'Updated Reason Code'])
             date_time = datetime.datetime.now().strftime('%Y-%m-%d %H-%M-%S')
             res_df.to_csv(str(self.save_folder_path.get()) + '/HF first' + date_time + '.csv', index=False)
 
-            analyser = Analyser(self.result_df, self.save_folder_path.get(), '3')
+            analyser = Analyser(self.window, self.result_df, self.save_folder_path.get(), '3')
             analyser.run()
 
     def concat_all_csv(self):
-        concat = concat_csv.Concat()
+        concat = concat_csv.Concat(self.window)
         concat.run()
 
     def get_update(self):
@@ -202,6 +225,16 @@ class Main(object):
         message += '\n\n版本 v1.11.13.01\n更新内容:\n1. 解决 POD 存在 nan 的情况'
         # v1.11.13.02
         message += '\n\n版本 v1.11.13.02\n更新内容:\n1. 增加更新状态，“无可用更新”'
+        # v1.11.24.01
+        message += '''- 修复若干功能
+    1. 修复了如有多张照片，则会显示多张照片
+    2. 修复了在点击 next 的时候，检查窗口关闭无法继续的 bug，改为手动选择是否继续
+    3. 修复了合并界面不显示路径的 bug 
+- 新增若干功能
+    1. 新增清除缓存时，显示实际清除缓存的内存 
+    2. 新增当 ending file 选错时的提示 
+    3. 新增当合并 ending, boss2me, all_report 不全的提示界面，点击继续可无视缺失继续 '''
+
         messagebox.showinfo(
             title='更新内容',
             message=message
@@ -210,7 +243,7 @@ class Main(object):
     def run(self):
         self.window.title(f'♥ Only For JJ ♥ : version: {self.version}')
         self.window.geometry('850x400')
-        self.wrong_message = StringVar()
+        # self.wrong_message = StringVar()
 
         # label ending
         Label(self.window, text="ending file:").place(x=100, y=100)
@@ -244,4 +277,3 @@ class Main(object):
 if __name__ == '__main__':
     main = Main()
     main.run()
-    # messagebox.askretrycancel(message='faf')

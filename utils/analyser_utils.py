@@ -24,6 +24,7 @@ def get_week_num(data_frame_row):
         return data_frame_row
     else:
         res_date = datetime.datetime.strptime(date_str, '%Y-%m-%d')
+        # res_date = datetime.datetime.strptime(date_str, '%Y-%m-%d %H:%M:%S')
         data_frame_row['Week#'] = [res_date.isocalendar()[1]]
         return data_frame_row
 
@@ -216,7 +217,7 @@ def get_status(data_frame_row, day):
             # ok
             if 'refused'.lower() in data_frame_row['Drop off remark'].values[0].lower():
                 data_frame_row = copy_reason(data_frame_row, 19)
-
+    # 如果是 SUCCEEDED 状态
     if data_frame_row['Drop off status'].values[0] == 'SUCCEEDED':
         # 先填 mail room 等
         # if 'Mailbox'.lower() in str(data_frame_row['Drop off remark'].values[0]).lower():
@@ -228,6 +229,7 @@ def get_status(data_frame_row, day):
         #     data_frame_row = copy_reason(data_frame_row, 111)
         # elif 'outside gate'.lower() in str(data_frame_row['Drop off remark'].values[0]).lower():
         #     data_frame_row = copy_reason(data_frame_row, 114)
+        # 先查看一些明显的问题
         if 'no access'.lower() in str(data_frame_row['Drop off remark'].values[0]).lower():
             data_frame_row = copy_reason(data_frame_row, 14)
         elif 'no answer'.lower() in str(data_frame_row['Drop off remark'].values[0]).lower():

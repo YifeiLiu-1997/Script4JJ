@@ -144,13 +144,13 @@ class Analyser(object):
             self.temp_window.pack(pady=20)
 
             # button_next 的函数为 next_page
-            prev_button = Button(self.window, text='上一页')
+            prev_button = Button(self.window, text='上一页', command=self.prev_page)
             prev_button.place(x=100, y=100)
 
-            next_button = Button(self.window, text='下一页')
+            next_button = Button(self.window, text='下一页', command=self.next_page)
             next_button.place(x=300, y=100)
 
-            confirm_button = Button(self.window, text='确定')
+            confirm_button = Button(self.window, text='确定', command=self.confirm)
             confirm_button.place(x=900, y=100)
 
             Button(self.window, text='清除缓存', command=self.clear_cache).place(x=1200, y=100)
@@ -161,6 +161,7 @@ class Analyser(object):
             self.window.bind('<Down>', self.next_page)
             self.window.bind('<Up>', self.prev_page)
             self.window.bind('<Return>', self.confirm)
+            self.window.bind('<s>', self.show_pic)
 
             # 设置一个框，用于填对应的序号
             self.answer = StringVar()
@@ -261,6 +262,7 @@ class Analyser(object):
             self.window.bind('<Down>', self.next_page)
             self.window.bind('<Up>', self.prev_page)
             self.window.bind('<Return>', self.confirm)
+            self.window.bind('<s>', self.show_pic)
 
             # 设置一个框，用于填对应的序号
             self.answer = StringVar()
@@ -288,9 +290,7 @@ class Analyser(object):
             # 一堆逻辑 显示出图片和详细地址文字
             self.window.mainloop()
 
-
-
-    def next_page(self, event):
+    def next_page(self, event=None):
         self.index = self.index + 1
         if self.index >= len(self.data_frame['Tracking Code']):
             # 到达最底下了
@@ -309,7 +309,7 @@ class Analyser(object):
             self.client_comment.set('')
         self.temp_window.delete(f'item{self.index-1}')
 
-    def prev_page(self, event):
+    def prev_page(self, event=None):
         self.index = self.index - 1
         if self.index < 0:
             # 到达最开始了
@@ -440,7 +440,7 @@ class Analyser(object):
         result_dict = json.loads(response.text)
         return result_dict
 
-    def show_pic(self):
+    def show_pic(self, event=None):
         # 生成 dict_data
         result_dict = self.get_dict_from_tracking_code(
             tracking_code=self.data_frame.loc[self.index, 'Tracking Code']
@@ -525,6 +525,8 @@ class Analyser(object):
             self.window.focus_force()
 
     def clear_cache(self):
+        if not os.path.exists('utils/img_cache'):
+            os.mkdir('utils/img_cache')
         del_list = os.listdir('utils/img_cache')
         if len(del_list) == 0:
             messagebox.showinfo(title='清除失败', message='无缓存')
@@ -533,8 +535,8 @@ class Analyser(object):
         for f in del_list:
             file_path = os.path.join('utils/img_cache', f)
             if os.path.isfile(file_path):
-                os.remove(file_path)
                 file_size_sum += self.get_filesize(file_path)
+                os.remove(file_path)
             elif os.path.isdir(file_path):
                 shutil.rmtree(file_path)
         messagebox.showinfo(title='清除成功', message=f'清除缓存共 {file_size_sum}mb')
@@ -545,7 +547,7 @@ class Analyser(object):
         file_size = file_size / float(1024 * 1024)
         return round(file_size, 2)
 
-    def confirm(self, event):
+    def confirm(self, event=None):
         print(self.answer)
         print(self.answer.get())
         answer_index = self.answer.get()
@@ -591,7 +593,7 @@ class Analyser(object):
 
 
 def process_image(img):
-    min_side = 512
+    min_side = 768
     size = img.shape
     h, w = size[0], size[1]
     #长边缩放为min_side

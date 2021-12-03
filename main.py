@@ -12,9 +12,9 @@ import datetime
 import os
 import sys
 import time
-
 import pandas as pd
 import concat_csv
+import downloader
 
 from tkinter import messagebox, Tk, StringVar, Label, Button, Entry, Text, Toplevel
 from tkinter.font import Font
@@ -34,7 +34,7 @@ class Main(object):
         self.all_report_df = None
         self.save_folder_path = StringVar()
         self.result_df = None
-        self.version = 'v1.11.24.01'
+        self.version = 'v2.12.02.01'
         self.day = None
         self.structured_df = None
         self.message = None
@@ -184,6 +184,10 @@ class Main(object):
         concat = concat_csv.Concat(self.window)
         concat.run()
 
+    def open_downloader(self):
+        download = downloader.DownLoader(self.window)
+        download.run()
+
     def get_update(self):
         # 获取当前文件夹地址
         current_path = os.getcwd()
@@ -220,23 +224,27 @@ class Main(object):
 
     @staticmethod
     def show_update():
-        # v1.11.13
-        message = '版本 v1.11.13\n更新内容:\n1. Mailroom/lobby 转为人工判断'
-        # v1.11.13.01
-        message += '\n\n版本 v1.11.13.01\n更新内容:\n1. 解决 POD 存在 nan 的情况'
-        # v1.11.13.02
-        message += '\n\n版本 v1.11.13.02\n更新内容:\n1. 增加更新状态，“无可用更新”'
-        # v1.11.24.01
-        message += '\n\n版本 v1.11.24.01\n更新内容:\n'
-        message += '''- 修复若干功能
-    1. 修复了如有多张照片，则会显示多张照片
-    2. 修复了在点击 next 的时候，检查窗口关闭无法继续的 bug，改为手动选择是否继续
-    3. 修复了合并界面不显示路径的 bug 
-- 新增若干功能
-    1. 新增清除缓存时，显示实际清除缓存的内存 
-    2. 新增当 ending file 选错时的提示 
-    3. 新增当合并 ending, boss2me, all_report 不全的提示界面，点击继续可无视缺失继续 '''
+    #         # v1.11.13
+    #         message = '版本 v1.11.13\n更新内容:\n1. Mailroom/lobby 转为人工判断'
+    #         # v1.11.13.01
+    #         message += '\n\n版本 v1.11.13.01\n更新内容:\n1. 解决 POD 存在 nan 的情况'
+    #         # v1.11.13.02
+    #         message += '\n\n版本 v1.11.13.02\n更新内容:\n1. 增加更新状态，“无可用更新”'
+    #         # v1.11.24.01
+    #         message += '\n\n版本 v1.11.24.01\n更新内容:\n'
+    #         message += '''- 修复若干功能
+    #     1. 修复了如有多张照片，则会显示多张照片
+    #     2. 修复了在点击 next 的时候，检查窗口关闭无法继续的 bug，改为手动选择是否继续
+    #     3. 修复了合并界面不显示路径的 bug
+    # - 新增若干功能
+    #     1. 新增当 ending file 选错时的提示
+    #     2. 新增当合并 ending, boss2me, all_report 不全的提示界面，点击继续可无视缺失继续 '''
 
+        # v2.12.02.01
+        message = '版本 v2.12.02.01\n更新内容:\n'
+        message += '''- 新增若干功能
+    1. 新增清除缓存时，显示实际清除缓存的内存 
+    2. 新增 download 按钮，可以随时下载 all_report '''
         messagebox.showinfo(
             title='更新内容',
             message=message
@@ -269,9 +277,10 @@ class Main(object):
 
         # button
         Button(self.window, text='next', width='10', command=self.generate_csv).place(x=680, y=300)
-        Button(self.window, text='merge', width='12', command=self.concat_all_csv).place(x=100, y=300)
-        Button(self.window, text='update', width='12', command=self.get_update).place(x=295, y=300)
-        Button(self.window, text='update comments', width='18', command=self.show_update).place(x=470, y=300)
+        Button(self.window, text='merge', width='10', command=self.concat_all_csv).place(x=100, y=300)
+        Button(self.window, text='download', width='12', command=self.open_downloader).place(x=230, y=300)
+        Button(self.window, text='update', width='10', command=self.get_update).place(x=380, y=300)
+        Button(self.window, text='update comments', width='15', command=self.show_update).place(x=510, y=300)
 
         self.window.mainloop()
 

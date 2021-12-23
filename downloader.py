@@ -200,7 +200,7 @@ class DownLoader(object):
 if __name__ == '__main__':
     downloader = DownLoader()
     # downloader.get_csv_from_date(client_id='159', date='2021-10-19')2021-10-19
-    # print(downloader.get_dict_from_tracking_code('SCD1970110400304388'))
+    print(downloader.get_dict_from_tracking_code('aejnmmw7pnsqxzpk'))
     # downloader.get_csv_from_date(
     #     client_id=['49'],
     #     date='2021-11-17',

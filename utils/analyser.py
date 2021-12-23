@@ -19,11 +19,14 @@ class Analyser(object):
         self.window = None
         self.temp_window = None
         self.url = 'https://dataorch.axlehire.com/shipments/search'
-        self.header = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36',
-                       'content-type': 'application/json', 'cookie': r'fp=1a39e1225ea764ca9f2abf599fafba34; xtoken="dE9DbW1wYkZDI/B28g5MkirtzwljFDty7THWI75r/mVq4do8YKOJBeUtONSQ1d3L1Yb5JCAEZPTk\012FFj7LXpbKjSaV71j1S6I9zjtTLurIi1ddgqe+xsIRU84cjg0Sktu\012"'}
+        self.header = {
+            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36',
+            'content-type': 'application/json',
+            'cookie': r'fp=1a39e1225ea764ca9f2abf599fafba34; xtoken="dE9DbW1wYkZDI/B28g5MkirtzwljFDty7THWI75r/mVq4do8YKOJBeUtONSQ1d3L1Yb5JCAEZPTk\012FFj7LXpbKjSaV71j1S6I9zjtTLurIi1ddgqe+xsIRU84cjg0Sktu\012"'}
         self.index = 0
         self.save_folder_path = save_path
         self.day = day
+        self.mission_length = len(self.data_frame['Tracking Code'])
 
     def initialize_param_dict(self):
         # 周四
@@ -156,7 +159,13 @@ class Analyser(object):
             Button(self.window, text='清除缓存', command=self.clear_cache).place(x=1200, y=100)
             Button(self.window, text='显示照片', command=self.show_pic).place(x=1100, y=100)
             Button(self.window, text='提交', command=self.hand_in_result).place(x=1300, y=100)
-
+            Button(self.window, text='打开字典', command=self.open_dictionary).place(x=1300, y=200)
+            
+            # 显示进度
+            self.process = StringVar()
+            Entry(self.window, width='10', textvariable=self.process).place(x=100, y=300)
+            self.process.set(str(self.index) + '/' + str(self.mission_length))
+            
             # 绑定按键
             self.window.bind('<Down>', self.next_page)
             self.window.bind('<Up>', self.prev_page)
@@ -185,6 +194,15 @@ class Analyser(object):
                 self.client_comment.set(result_dict['shipment']['dropoff_note'])
             else:
                 self.client_comment.set('')
+
+            # 显示 customer id
+            self.customer_id = StringVar()
+            Label(self.window, text="note:").place(x=800, y=150)
+            Entry(self.window, width='100', textvariable=self.customer_id).place(x=900, y=150)
+            if 'customer' in result_dict['results'][0]['shipment'].keys():
+                self.customer_id.set(result_dict['shipment']['customer']['phone_number'])
+            else:
+                self.customer_id.set('')
 
             # 一堆逻辑 显示出图片和详细地址文字
             self.window.mainloop()
@@ -257,7 +275,13 @@ class Analyser(object):
             Button(self.window, text='清除缓存', command=self.clear_cache).place(x=1200, y=100)
             Button(self.window, text='显示照片', command=self.show_pic).place(x=1100, y=100)
             Button(self.window, text='提交', command=self.hand_in_result).place(x=1300, y=100)
-
+            Button(self.window, text='打开字典', command=self.open_dictionary).place(x=1300, y=200)
+            
+            # 显示进度
+            self.process = StringVar()
+            Entry(self.window, width='10', textvariable=self.process).place(x=100, y=300)
+            self.process.set(str(self.index) + '/' + str(self.mission_length))
+            
             # 绑定按键
             self.window.bind('<Down>', self.next_page)
             self.window.bind('<Up>', self.prev_page)
@@ -287,19 +311,37 @@ class Analyser(object):
             else:
                 self.client_comment.set('')
 
+            # 显示 customer id
+            self.customer_id = StringVar()
+            Label(self.window, text="note:").place(x=800, y=150)
+            Entry(self.window, width='100', textvariable=self.customer_id).place(x=900, y=150)
+            if 'customer' in result_dict['results'][0]['shipment'].keys():
+                self.customer_id.set(result_dict['shipment']['customer']['phone_number'])
+            else:
+                self.customer_id.set('')
+                
+            # 进度条
+            self.process.set(str(self.index) + '/' + str(self.mission_length))
+            
             # 一堆逻辑 显示出图片和详细地址文字
             self.window.mainloop()
 
     def next_page(self, event=None):
         self.index = self.index + 1
+        
         if self.index >= len(self.data_frame['Tracking Code']):
             # 到达最底下了
             messagebox.showinfo(title='警告', message='没有下一页了')
             self.window.focus_force()
             self.index = self.index - 1
             self.change_data(self.index)
+            
         self.change_data(self.index)
+        
+        # tracing code
         self.tracking_code.set(self.data_frame.loc[self.index, 'Tracking Code'])
+        
+        # dropoff note
         result_dict = self.get_dict_from_tracking_code(
             tracking_code=self.data_frame.loc[self.index, 'Tracking Code']
         )
@@ -307,7 +349,18 @@ class Analyser(object):
             self.client_comment.set(result_dict['results'][0]['shipment']['dropoff_note'])
         else:
             self.client_comment.set('')
-        self.temp_window.delete(f'item{self.index-1}')
+        
+        # customer_id
+        self.customer_id = StringVar()
+        if 'customer' in result_dict['results'][0]['shipment'].keys():
+            self.customer_id.set(result_dict['shipment']['customer']['phone_number'])
+        else:
+            self.customer_id.set('')
+        
+        # 进度条
+        self.process.set(str(self.index) + '/' + str(self.mission_length))
+        
+        self.temp_window.delete(f'item{self.index - 1}')
 
     def prev_page(self, event=None):
         self.index = self.index - 1
@@ -317,8 +370,13 @@ class Analyser(object):
             self.window.focus_force()
             self.index = self.index + 1
             self.change_data(self.index)
+            
         self.change_data(self.index)
+        
+        # tracing code
         self.tracking_code.set(self.data_frame.loc[self.index, 'Tracking Code'])
+
+        # dropoff note
         result_dict = self.get_dict_from_tracking_code(
             tracking_code=self.data_frame.loc[self.index, 'Tracking Code']
         )
@@ -326,7 +384,15 @@ class Analyser(object):
             self.client_comment.set(result_dict['results'][0]['shipment']['dropoff_note'])
         else:
             self.client_comment.set('')
-        self.temp_window.delete(f'item{self.index+1}')
+
+        # customer_id
+        self.customer_id = StringVar()
+        if 'customer' in result_dict['results'][0]['shipment'].keys():
+            self.customer_id.set(result_dict['shipment']['customer']['phone_number'])
+        else:
+            self.customer_id.set('')
+            
+        self.temp_window.delete(f'item{self.index + 1}')
 
     def change_data(self, data_index):
         # 设置 StringVar
@@ -339,15 +405,19 @@ class Analyser(object):
             self.param_dict['Latest Dropoff Time'].set(self.data_frame.loc[data_index, 'Latest Dropoff Time'])
             self.param_dict['Scheduled Delivery Date'].set(self.data_frame.loc[data_index, 'Scheduled Delivery Date'])
             self.param_dict['Shipment status'].set(self.data_frame.loc[data_index, 'Shipment status'])
-            self.param_dict['Inbound Scan Date 减 Scheduled Delivery Date'].set(self.data_frame.loc[data_index, 'Inbound Scan Date 减 Scheduled Delivery Date'])
-            self.param_dict['Inbound Scan Date (Linehaul)'].set(self.data_frame.loc[data_index, 'Inbound Scan Date (Linehaul)'])
+            self.param_dict['Inbound Scan Date 减 Scheduled Delivery Date'].set(
+                self.data_frame.loc[data_index, 'Inbound Scan Date 减 Scheduled Delivery Date'])
+            self.param_dict['Inbound Scan Date (Linehaul)'].set(
+                self.data_frame.loc[data_index, 'Inbound Scan Date (Linehaul)'])
             self.param_dict['Inbound Scan Time'].set(self.data_frame.loc[data_index, 'Inbound Scan Time'])
             self.param_dict['Inbound status'].set(self.data_frame.loc[data_index, 'Inbound status'])
-            self.param_dict['Pickup Date 减 Scheduled Delivery Date'].set(self.data_frame.loc[data_index, 'Pickup Date 减 Scheduled Delivery Date'])
+            self.param_dict['Pickup Date 减 Scheduled Delivery Date'].set(
+                self.data_frame.loc[data_index, 'Pickup Date 减 Scheduled Delivery Date'])
             self.param_dict['Pickup Date'].set(self.data_frame.loc[data_index, 'Pickup Date'])
             self.param_dict['Pickup Time'].set(self.data_frame.loc[data_index, 'Pickup Time'])
             self.param_dict['Pickup Status'].set(self.data_frame.loc[data_index, 'Pickup Status'])
-            self.param_dict['Drop off date 减 Pickup Date'].set(self.data_frame.loc[data_index, 'Drop off date 减 Pickup Date'])
+            self.param_dict['Drop off date 减 Pickup Date'].set(
+                self.data_frame.loc[data_index, 'Drop off date 减 Pickup Date'])
             self.param_dict['Drop off date'].set(self.data_frame.loc[data_index, 'Drop off date'])
             self.param_dict['Drop off time'].set(self.data_frame.loc[data_index, 'Drop off time'])
             self.param_dict['Drop off remark'].set(self.data_frame.loc[data_index, 'Drop off remark'])
@@ -384,15 +454,19 @@ class Analyser(object):
             self.param_dict['Earliest Dropoff Time'].set(self.data_frame.loc[data_index, 'Earliest Dropoff Time'])
             self.param_dict['Latest Dropoff Time'].set(self.data_frame.loc[data_index, 'Latest Dropoff Time'])
             self.param_dict['Shipment status'].set(self.data_frame.loc[data_index, 'Shipment status'])
-            self.param_dict['Inbound Scan Date 减 Scheduled Delivery Date'].set(self.data_frame.loc[data_index, 'Inbound Scan Date 减 Scheduled Delivery Date'])
-            self.param_dict['Inbound Scan Date (Linehaul)'].set(self.data_frame.loc[data_index, 'Inbound Scan Date (Linehaul)'])
+            self.param_dict['Inbound Scan Date 减 Scheduled Delivery Date'].set(
+                self.data_frame.loc[data_index, 'Inbound Scan Date 减 Scheduled Delivery Date'])
+            self.param_dict['Inbound Scan Date (Linehaul)'].set(
+                self.data_frame.loc[data_index, 'Inbound Scan Date (Linehaul)'])
             self.param_dict['Inbound Scan Time'].set(self.data_frame.loc[data_index, 'Inbound Scan Time'])
             self.param_dict['Inbound status'].set(self.data_frame.loc[data_index, 'Inbound status'])
-            self.param_dict['Pickup Date 减 Scheduled Delivery Date'].set(self.data_frame.loc[data_index, 'Pickup Date 减 Scheduled Delivery Date'])
+            self.param_dict['Pickup Date 减 Scheduled Delivery Date'].set(
+                self.data_frame.loc[data_index, 'Pickup Date 减 Scheduled Delivery Date'])
             self.param_dict['Pickup Date'].set(self.data_frame.loc[data_index, 'Pickup Date'])
             self.param_dict['Pickup Time'].set(self.data_frame.loc[data_index, 'Pickup Time'])
             self.param_dict['Pickup Status'].set(self.data_frame.loc[data_index, 'Pickup Status'])
-            self.param_dict['Drop off date 减 Pickup Date'].set(self.data_frame.loc[data_index, 'Drop off date 减 Pickup Date'])
+            self.param_dict['Drop off date 减 Pickup Date'].set(
+                self.data_frame.loc[data_index, 'Drop off date 减 Pickup Date'])
             self.param_dict['Drop off date'].set(self.data_frame.loc[data_index, 'Drop off date'])
             self.param_dict['Drop off Time'].set(self.data_frame.loc[data_index, 'Drop off Time'])
             self.param_dict['Drop off remark'].set(self.data_frame.loc[data_index, 'Drop off remark'])
@@ -474,8 +548,8 @@ class Analyser(object):
                     address_street2 = "" + ' '
                 address_street = result_dict['results'][0]['shipment']['dropoff_address']['street'] + ' '
                 address_city = result_dict['results'][0]['shipment']['dropoff_address']['city'] + ' '
-                address_state= result_dict['results'][0]['shipment']['dropoff_address']['state'] + ' '
-                address_zipcode= result_dict['results'][0]['shipment']['dropoff_address']['zipcode'] + ' '
+                address_state = result_dict['results'][0]['shipment']['dropoff_address']['state'] + ' '
+                address_zipcode = result_dict['results'][0]['shipment']['dropoff_address']['zipcode'] + ' '
                 address = address_street2 + address_street + address_city + address_state + address_zipcode
 
                 img = cv2.imread(f'utils/img_cache/{img_url[-10:]}.png')
@@ -508,7 +582,7 @@ class Analyser(object):
                 for img in imgs:
                     img = cv2.imread(img)
                     img = process_image(img)
-                    cv2.imshow(f"address: {address} 有多张照片，点击x后显示下一张", img)
+                    cv2.imshow(f"address: {address} have more than one pic", img)
                     cv2.waitKey()
         else:
             if 'street2' in result_dict['results'][0]['shipment']['dropoff_address'].keys():
@@ -517,8 +591,8 @@ class Analyser(object):
                 address_street2 = " "
             address_street = result_dict['results'][0]['shipment']['dropoff_address']['street'] + ' '
             address_city = result_dict['results'][0]['shipment']['dropoff_address']['city'] + ' '
-            address_state= result_dict['results'][0]['shipment']['dropoff_address']['state'] + ' '
-            address_zipcode= result_dict['results'][0]['shipment']['dropoff_address']['zipcode'] + ' '
+            address_state = result_dict['results'][0]['shipment']['dropoff_address']['state'] + ' '
+            address_zipcode = result_dict['results'][0]['shipment']['dropoff_address']['zipcode'] + ' '
             address = address_street2 + address_street + address_city + address_state + address_zipcode
 
             messagebox.showinfo('没有照片', message=f'地址为: {address}')
@@ -539,7 +613,7 @@ class Analyser(object):
                 os.remove(file_path)
             elif os.path.isdir(file_path):
                 shutil.rmtree(file_path)
-        messagebox.showinfo(title='清除成功', message=f'清除缓存共 {file_size_sum}mb')
+        messagebox.showinfo(title='清除成功', message=f'清除缓存共 {round(file_size_sum, 1)}mb')
 
     @staticmethod
     def get_filesize(file_path):
@@ -553,7 +627,7 @@ class Analyser(object):
         answer_index = self.answer.get()
         print('answer_index', int(answer_index))
         analyser_utils.copy_reason(
-            data_frame_row=self.data_frame.iloc[self.index: self.index+1, :],
+            data_frame_row=self.data_frame.iloc[self.index: self.index + 1, :],
             index=int(answer_index)
         )
         messagebox.showinfo(title='确定', message='您的输入已写入')
@@ -565,7 +639,10 @@ class Analyser(object):
         path = str(self.save_folder_path) + '/最终版' + date_time + '.csv'
 
         res_df = self.write_in()
-        res_df.rename(columns={'AH Assessment': 'HF Reason Code'}, inplace=True)
+
+        # 周三的需要改动列名
+        if self.day == '3':
+            res_df.rename(columns={'AH Assessment': 'HF Reason Code'}, inplace=True)
         # 这里 res_df 中的五列将带 x 的写回去，并 drop 掉
         res_df.to_csv(path, index=False)
 
@@ -591,48 +668,59 @@ class Analyser(object):
                           'POD Valid?'] = data_frame.loc[index, 'POD Valid?']
         return source_df
 
+    @staticmethod
+    def open_dictionary():
+        os.system(os.getcwd() + '/utils/files/dictionary.xlsx')
+
 
 def process_image(img):
     min_side = 768
     size = img.shape
     h, w = size[0], size[1]
-    #长边缩放为min_side
+    # 长边缩放为min_side
     scale = max(w, h) / float(min_side)
-    new_w, new_h = int(w/scale), int(h/scale)
+    new_w, new_h = int(w / scale), int(h / scale)
     resize_img = cv2.resize(img, (new_w, new_h))
     # 填充至min_side * min_side
     if new_w % 2 != 0 and new_h % 2 == 0:
-        top, bottom, left, right = (min_side-new_h)/2, (min_side-new_h)/2, (min_side-new_w)/2 + 1, (min_side-new_w)/2
+        top, bottom, left, right = (min_side - new_h) / 2, (min_side - new_h) / 2, (min_side - new_w) / 2 + 1, (
+                    min_side - new_w) / 2
     elif new_h % 2 != 0 and new_w % 2 == 0:
-        top, bottom, left, right = (min_side-new_h)/2 + 1, (min_side-new_h)/2, (min_side-new_w)/2, (min_side-new_w)/2
+        top, bottom, left, right = (min_side - new_h) / 2 + 1, (min_side - new_h) / 2, (min_side - new_w) / 2, (
+                    min_side - new_w) / 2
     elif new_h % 2 == 0 and new_w % 2 == 0:
-        top, bottom, left, right = (min_side-new_h)/2, (min_side-new_h)/2, (min_side-new_w)/2, (min_side-new_w)/2
+        top, bottom, left, right = (min_side - new_h) / 2, (min_side - new_h) / 2, (min_side - new_w) / 2, (
+                    min_side - new_w) / 2
     else:
-        top, bottom, left, right = (min_side-new_h)/2 + 1, (min_side-new_h)/2, (min_side-new_w)/2 + 1, (min_side-new_w)/2
-    pad_img = cv2.copyMakeBorder(resize_img, int(top), int(bottom), int(left), int(right), cv2.BORDER_CONSTANT, value=[0,0,0]) #从图像边界向上,下,左,右扩的像素数目
+        top, bottom, left, right = (min_side - new_h) / 2 + 1, (min_side - new_h) / 2, (min_side - new_w) / 2 + 1, (
+                    min_side - new_w) / 2
+    pad_img = cv2.copyMakeBorder(resize_img, int(top), int(bottom), int(left), int(right), cv2.BORDER_CONSTANT,
+                                 value=[0, 0, 0])  # 从图像边界向上,下,左,右扩的像素数目
     return pad_img
 
 
 class Thursday(object):
-    def __init__(self, init_df):
+    def __init__(self, init_df, policy):
         self.init_df = init_df
+        self.policy = policy
 
     def analyse(self):
         res_data = self.init_df.copy()
         result = pd.DataFrame(columns=res_data.columns)
         for index, row in self.init_df.iterrows():
             # 填入 week √
-            temp = analyser_utils.get_week_num(res_data.iloc[index: index+1, :])
+            temp = analyser_utils.get_week_num(res_data.iloc[index: index + 1, :])
             # 分析 status
-            res_data.iloc[index: index + 1, :] = analyser_utils.get_status(temp, day='4')
+            res_data.iloc[index: index + 1, :] = analyser_utils.get_status(temp, day='4', policy=self.policy)
             result = pd.concat([result, temp])
         result['Updated Reason Code'] = result['AH Assessment']
         return result
 
 
 class Wednesday(object):
-    def __init__(self, init_df):
+    def __init__(self, init_df, policy):
         self.init_df = init_df
+        self.policy = policy
 
     def analyse(self):
         res_data = self.init_df.copy()
@@ -640,9 +728,9 @@ class Wednesday(object):
         result = pd.DataFrame(columns=res_data.columns)
         for index, row in self.init_df.iterrows():
             # 填入 week √
-            temp = analyser_utils.get_week_num(res_data.iloc[index: index+1, :])
+            temp = analyser_utils.get_week_num(res_data.iloc[index: index + 1, :])
             # 分析 status
-            res_data.iloc[index: index + 1, :] = analyser_utils.get_status(temp, day='3')
+            res_data.iloc[index: index + 1, :] = analyser_utils.get_status(temp, day='3', policy=self.policy)
             result = pd.concat([result, temp])
         result['Updated Reason Code'] = result['AH Assessment']
         return result

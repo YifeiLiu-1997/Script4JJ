@@ -34,7 +34,7 @@ class Main(object):
         self.all_report_df = None
         self.save_folder_path = StringVar()
         self.result_df = None
-        self.version = 'v2.12.02.01'
+        self.version = 'v2.12.22.01'
         self.day = None
         self.structured_df = None
         self.message = None
@@ -138,20 +138,25 @@ class Main(object):
         structured_df.to_csv(str(self.save_folder_path.get()) + '/初版' + date_time + '.csv', index=False)
         self.structured_df = structured_df
 
-        # 开始逐行分析已经结构化的 dataframe，通过老板发的，（行要一致）
-        if 'thursday' in str(self.ending_path.get()).lower():
-            # 如果发现日期没对齐，显示出少了那些日期
-            self.day = '4'
-            self.get_message(structured_df, day=self.day)
+        # 检查policy有没有错
+        if self.policy.get().isnumeric():
+            # 开始逐行分析已经结构化的 dataframe，通过老板发的，（行要一致）
+            if 'thursday' in str(self.ending_path.get()).lower():
 
-        elif 'wednesday' in str(self.ending_path.get()).lower():
-            # 如果发现日期没对齐，显示出少了那些日期
-            self.day = '3'
-            self.get_message(structured_df, day=self.day)
+                # 如果发现日期没对齐，显示出少了那些日期
+                self.day = '4'
+                self.get_message(structured_df, day=self.day)
+
+            elif 'wednesday' in str(self.ending_path.get()).lower():
+                # 如果发现日期没对齐，显示出少了那些日期
+                self.day = '3'
+                self.get_message(structured_df, day=self.day)
+        else:
+            messagebox.showerror(title='policy错误', message='policy填写有误')
 
     def next(self):
         if self.day == '4':
-            thursday = Thursday(self.structured_df)
+            thursday = Thursday(self.structured_df, policy=self.policy.get())
             self.result_df = thursday.analyse()
 
             # 生成 csv
@@ -165,7 +170,7 @@ class Main(object):
             # 周三的一些列名先改一下
             self.structured_df.rename(columns={'Drop off Time': 'Drop off time'}, inplace=True)
 
-            wednesday = Wednesday(self.structured_df)
+            wednesday = Wednesday(self.structured_df, policy=self.policy.get())
             self.result_df = wednesday.analyse()
 
             # 周三的一些列名先改回来
@@ -245,6 +250,11 @@ class Main(object):
         message += '''- 新增若干功能
     1. 新增清除缓存时，显示实际清除缓存的内存 
     2. 新增 download 按钮，可以随时下载 all_report '''
+        # v2.12.16.01
+        message = '版本 v2.12.16.01\n更新内容:\n'
+        message += '''- 新增若干功能
+    1. 新增清除缓存时，显示实际清除缓存的内存 
+    2. 新增 download 按钮，可以随时下载 all_report '''
         messagebox.showinfo(
             title='更新内容',
             message=message
@@ -252,7 +262,7 @@ class Main(object):
 
     def run(self):
         self.window.title(f'♥ Only For JJ ♥ : version: {self.version}')
-        self.window.geometry('850x400')
+        self.window.geometry('850x450')
         # self.wrong_message = StringVar()
 
         # label ending
@@ -275,12 +285,17 @@ class Main(object):
         Entry(self.window, textvariable=self.save_folder_path, width='60').place(x=220, y=250)
         Button(self.window, text="select", command=self._get_save_folder_path, width='10').place(x=680, y=250)
 
+        # label policy
+        self.policy = StringVar()
+        Label(self.window, text="policy:").place(x=100, y=300)
+        Entry(self.window, textvariable=self.policy, width='10').place(x=220, y=300)
+
         # button
-        Button(self.window, text='next', width='10', command=self.generate_csv).place(x=680, y=300)
-        Button(self.window, text='merge', width='10', command=self.concat_all_csv).place(x=100, y=300)
-        Button(self.window, text='download', width='12', command=self.open_downloader).place(x=230, y=300)
-        Button(self.window, text='update', width='10', command=self.get_update).place(x=380, y=300)
-        Button(self.window, text='update comments', width='15', command=self.show_update).place(x=510, y=300)
+        Button(self.window, text='next', width='10', command=self.generate_csv).place(x=680, y=350)
+        Button(self.window, text='merge', width='10', command=self.concat_all_csv).place(x=100, y=350)
+        Button(self.window, text='download', width='12', command=self.open_downloader).place(x=230, y=350)
+        Button(self.window, text='update', width='10', command=self.get_update).place(x=380, y=350)
+        Button(self.window, text='update comments', width='15', command=self.show_update).place(x=510, y=350)
 
         self.window.mainloop()
 

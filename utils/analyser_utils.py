@@ -63,7 +63,7 @@ def copy_reason(data_frame_row, index):
         return data_frame_row
 
 
-def get_status(data_frame_row, day):
+def get_status(data_frame_row, day, policy):
     # 判断 shipment status 完了
     if 'GEOCODED'.lower() in str(data_frame_row['Shipment status'].values[0]).lower():
         data_frame_row = copy_reason(data_frame_row, 29)
@@ -147,7 +147,8 @@ def get_status(data_frame_row, day):
         if data_frame_row['Pickup Status'].values[0] == 'SUCCEEDED':
             data_frame_row = copy_reason(data_frame_row, 52)
             return data_frame_row
-        if data_frame_row['Pickup Status'].values[0] == 'FAILED' or data_frame_row['Pickup Status'].values[0] == 'PENDING':
+        if data_frame_row['Pickup Status'].values[0] == 'FAILED' or \
+                data_frame_row['Pickup Status'].values[0] == 'PENDING':
             if day == '4':
                 data_frame_row = copy_reason(data_frame_row, 3)
                 return data_frame_row
@@ -217,6 +218,7 @@ def get_status(data_frame_row, day):
             # ok
             if 'refused'.lower() in data_frame_row['Drop off remark'].values[0].lower():
                 data_frame_row = copy_reason(data_frame_row, 19)
+
     # 如果是 SUCCEEDED 状态
     if data_frame_row['Drop off status'].values[0] == 'SUCCEEDED':
         # 先填 mail room 等
@@ -243,9 +245,10 @@ def get_status(data_frame_row, day):
         # 如果  inbound_diff 等于 0
         if inbound_diff == 0:
             # 如果 inbound 当天晚于 5 点
-            if time_upper_than(data_frame_row['Inbound Scan Time'].values[0], '05:00'):
+            if time_upper_than(data_frame_row['Inbound Scan Time'].values[0], '05:00', 0):
                 data_frame_row['Inbound Comments'] = ['Inbound late']
                 data_frame_row = copy_reason(data_frame_row, 24)
+                return data_frame_row
             # 如果 inbound 当天早于 5 点
             else:
                 # 看 pickup 正常判断
@@ -285,6 +288,7 @@ def get_status(data_frame_row, day):
                             data_frame_row['Pickup Comments'] = [
                                 f'Inbound ontime but outbound late for {pickup_diff} days']
                             return data_frame_row
+                    return data_frame_row
 
         # 如果 inbound_diff 大于一天
         elif inbound_diff > 0:
@@ -328,6 +332,9 @@ def get_status(data_frame_row, day):
                         data_frame_row['Pickup Comments'] = [
                             f'Inbound late and outbound late for {pickup_diff} days']
                         return data_frame_row
+                return data_frame_row
+
+            return data_frame_row
 
         # 当 Inbound 没 late
         else:
@@ -337,7 +344,7 @@ def get_status(data_frame_row, day):
             # 如果 pick 当天送达
             if pickup_diff == 0:
                 # 如果 pick 当天晚于 12
-                if time_upper_than(data_frame_row['Pickup Time'].values[0], '12:00'):
+                if time_upper_than(data_frame_row['Pickup Time'].values[0], '12:00', 0):
                     # print('Pickup Time', data_frame_row['Pickup Time'].values[0])
                     data_frame_row['Pickup Comments'] = ['Pickup after 12pm']
                 # 如果 pick 早于 12 点
@@ -347,7 +354,7 @@ def get_status(data_frame_row, day):
                     # 判断 delivery 当天
                     if delivery_diff == 0:
                         if time_upper_than(data_frame_row['Drop off time'].values[0],
-                                           data_frame_row['Latest Dropoff Time'].values[0]):
+                                           data_frame_row['Latest Dropoff Time'].values[0], policy):
                             data_frame_row = copy_reason(data_frame_row, 118)
                             return data_frame_row
                     # 配送晚于 1 天
@@ -366,6 +373,7 @@ def get_status(data_frame_row, day):
                             data_frame_row = write_in_delivery_comments(data_frame_row,
                                                                         f'pickup ok but delivery late for {delivery_diff} days')
                             return data_frame_row
+                return data_frame_row
 
             # 如果 pick 晚了 n 天
             if pickup_diff > 0:
@@ -386,7 +394,7 @@ def get_status(data_frame_row, day):
                         if delivery_diff == 0:
                             # 当天晚了
                             if time_upper_than(data_frame_row['Drop off time'].values[0],
-                                               data_frame_row['Latest Dropoff Time'].values[0]):
+                                               data_frame_row['Latest Dropoff Time'].values[0], policy):
                                 data_frame_row = copy_reason(data_frame_row, 118)
 
                                 data_frame_row = write_in_delivery_comments(data_frame_row,
@@ -415,6 +423,7 @@ def get_status(data_frame_row, day):
                         data_frame_row['Pickup Comments'] = [
                             f'Inbound ontime but outbound late for {pickup_diff} days']
                         return data_frame_row
+                    return data_frame_row
 
                 # 周四
                 if day == '4':
@@ -433,13 +442,14 @@ def get_status(data_frame_row, day):
                         if delivery_diff == 0:
                             # 当天晚了
                             if time_upper_than(data_frame_row['Drop off time'].values[0],
-                                               data_frame_row['Latest Dropoff Time'].values[0]):
+                                               data_frame_row['Latest Dropoff Time'].values[0], policy):
                                 data_frame_row = copy_reason(data_frame_row, 118)
 
                                 data_frame_row = write_in_delivery_comments(data_frame_row,
                                                                             f'pickup late for {pickup_diff} day and  delivery late for same day')
 
                                 return data_frame_row
+
                         # pickup 一天， delivery 多天
                         else:
                             data_frame_row = copy_reason(data_frame_row, 119)
@@ -462,6 +472,7 @@ def get_status(data_frame_row, day):
                         data_frame_row['Pickup Comments'] = [
                             f'Inbound ontime but outbound late for {pickup_diff} days']
                         return data_frame_row
+                    return data_frame_row
 
             # pickup 没晚
             else:
@@ -469,7 +480,7 @@ def get_status(data_frame_row, day):
                                               data_frame_row['Pickup Date'].values[0])
                 if delivery_diff == 0:
                     if time_upper_than(data_frame_row['Drop off time'].values[0],
-                                       data_frame_row['Latest Dropoff Time'].values[0]):
+                                       data_frame_row['Latest Dropoff Time'].values[0], policy):
                         data_frame_row = copy_reason(data_frame_row, 118)
                         return data_frame_row
                 else:
@@ -491,9 +502,9 @@ def get_status(data_frame_row, day):
 
 def date_subtract(compared_date, schedule_date):
     if pd.isna(compared_date) or str(compared_date) == 'nan':
-        return -1
+        return -100
     if pd.isna(schedule_date) or str(schedule_date) == 'nan':
-        return -1
+        return -100
     else:
         compared_date = datetime.datetime.strptime(compared_date, '%Y-%m-%d')
         # 如果 scheduled date 是月日年
@@ -505,8 +516,9 @@ def date_subtract(compared_date, schedule_date):
         return (compared_date - schedule_date).days
 
 
-def time_upper_than(time_str, upper):
+def time_upper_than(time_str, upper, policy):
     upper_time = datetime.datetime.strptime(upper, '%H:%M')
+    upper_time += datetime.timedelta(minutes=policy)
     time_str = datetime.datetime.strptime(time_str, '%H:%M')
     # print(upper_time, '-', time_str, '=', end=' ')
     # print(int(upper_time.strftime('%H%M')) - int(time_str.strftime('%H%M')))
@@ -524,5 +536,6 @@ def write_in_delivery_comments(data_frame_row, string):
     elif string in data_frame_row['Delivery Comments'].values[0]:
         return data_frame_row
     else:
-        data_frame_row['Delivery Comments'] = [data_frame_row['Delivery Comments'].values[0] + '/' + string]
+        # data_frame_row['Delivery Comments'] = [data_frame_row['Delivery Comments'].values[0] + '/' + string]
+        data_frame_row['Delivery Comments'] = [string]
         return data_frame_row

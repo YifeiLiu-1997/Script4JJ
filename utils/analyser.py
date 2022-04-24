@@ -539,7 +539,7 @@ class Analyser(object):
                 img_url_response = session.get(img_url)
 
                 # 写入文件到 cache
-                with open(f'utils/img_cache/{img_url[-10:]}.png', 'wb') as fp:
+                with open(f'tools/img_cache/{img_url[-10:]}.png', 'wb') as fp:
                     fp.write(img_url_response.content)
 
                 if 'street2' in result_dict['results'][0]['shipment']['dropoff_address'].keys():
@@ -552,7 +552,7 @@ class Analyser(object):
                 address_zipcode = result_dict['results'][0]['shipment']['dropoff_address']['zipcode'] + ' '
                 address = address_street2 + address_street + address_city + address_state + address_zipcode
 
-                img = cv2.imread(f'utils/img_cache/{img_url[-10:]}.png')
+                img = cv2.imread(f'tools/img_cache/{img_url[-10:]}.png')
                 img = process_image(img)
                 cv2.imshow(f"address: {address}", img)
                 cv2.waitKey()
@@ -563,9 +563,9 @@ class Analyser(object):
                     img_url_response = session.get(img_url['url'])
 
                     # 写入文件到 cache
-                    with open(f'utils/img_cache/{img_url["url"][-10:]}.png', 'wb') as fp:
+                    with open(f'tools/img_cache/{img_url["url"][-10:]}.png', 'wb') as fp:
                         fp.write(img_url_response.content)
-                        imgs.append(f'utils/img_cache/{img_url["url"][-10:]}.png')
+                        imgs.append(f'tools/img_cache/{img_url["url"][-10:]}.png')
 
                 if 'street2' in result_dict['results'][0]['shipment']['dropoff_address'].keys():
                     address_street2 = result_dict['results'][0]['shipment']['dropoff_address']['street2'] + ' '
@@ -599,15 +599,15 @@ class Analyser(object):
             self.window.focus_force()
 
     def clear_cache(self):
-        if not os.path.exists('utils/img_cache'):
-            os.mkdir('utils/img_cache')
-        del_list = os.listdir('utils/img_cache')
+        if not os.path.exists('tools/img_cache'):
+            os.mkdir('tools/img_cache')
+        del_list = os.listdir('tools/img_cache')
         if len(del_list) == 0:
             messagebox.showinfo(title='清除失败', message='无缓存')
             return
         file_size_sum = 0
         for f in del_list:
-            file_path = os.path.join('utils/img_cache', f)
+            file_path = os.path.join('tools/img_cache', f)
             if os.path.isfile(file_path):
                 file_size_sum += self.get_filesize(file_path)
                 os.remove(file_path)
@@ -670,7 +670,7 @@ class Analyser(object):
 
     @staticmethod
     def open_dictionary():
-        os.system(os.getcwd() + '/utils/files/dictionary.xlsx')
+        os.system(os.getcwd() + '/tools/files/dictionary.xlsx')
 
 
 def process_image(img):
@@ -708,9 +708,12 @@ class Thursday(object):
         res_data = self.init_df.copy()
         result = pd.DataFrame(columns=res_data.columns)
         for index, row in self.init_df.iterrows():
+            # 修改 Scheduled Delivery Date 成为 %Y-%m-%d
+            temp = analyser_utils.change_Scheduled_Delivery_Date(res_data.iloc[index: index + 1, :])
             # 填入 week √
-            temp = analyser_utils.get_week_num(res_data.iloc[index: index + 1, :])
-            # 分析 status
+            temp = analyser_utils.get_week_num(temp)
+            # 修改时区
+            temp = analyser_utils.data_frame_row_time_change(temp)
             res_data.iloc[index: index + 1, :] = analyser_utils.get_status(temp, day='4', policy=self.policy)
             result = pd.concat([result, temp])
         result['Updated Reason Code'] = result['AH Assessment']
@@ -727,8 +730,12 @@ class Wednesday(object):
         res_data.rename(columns={'HF Reason Code': 'AH Assessment', 'POD Qaulity': 'POD Quality'}, inplace=True)
         result = pd.DataFrame(columns=res_data.columns)
         for index, row in self.init_df.iterrows():
+            # 修改 Scheduled Delivery Date 成为 %Y-%m-%d
+            temp = analyser_utils.change_Scheduled_Delivery_Date(res_data.iloc[index: index + 1, :])
             # 填入 week √
-            temp = analyser_utils.get_week_num(res_data.iloc[index: index + 1, :])
+            temp = analyser_utils.get_week_num(temp)
+            # 修改时区
+            temp = analyser_utils.data_frame_row_time_change(temp)
             # 分析 status
             res_data.iloc[index: index + 1, :] = analyser_utils.get_status(temp, day='3', policy=self.policy)
             result = pd.concat([result, temp])

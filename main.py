@@ -1,11 +1,17 @@
 """
-    疯狂 work project
-    1. 首先，手动下载 boss 传给我的链接中，boss2me file 和对应的 all_report，利用周三周四需要提交的模板，此三个文件，共同初始化出一个文件
-        a. 将重命名后的 boss2me，进行第一步分析，通过文件名过滤出各家顾客的名单，走入不同的流程
-        b. 更改各家对应的名称，与 all_report 进行 merge，生成相同的 structured_dataframe
-    2. 其次，将生成的初版 dataframe 进行分析，返回分析后的 dataframe
-        a. 逐行分析，遇到相应的错误，将可以复制的三列复制
-        b. （未来）：逐行分析的时候，提供可观看的列以及 tracking code 对应的照片，并询问原因，当填入的时候，根据填的内容，复制新的值到 dataframe
+    最新版script代码重构，流程分为几个部分
+    1. 直接运行，显示主窗口
+        包含了两个自行填写的内容
+        ① google sheet 的 url （boss 发来的 google sheet 对应的网址链接）
+        ② 需要将项目生成的文件夹  （选择一个空文件夹，会将整个工作项目自动生成到此文件夹下，结构如下：）
+            your_folder_name
+                ├─all_report （存放 all_report.csv）
+                ├─boss_to_me （存放 boss 发来的原始任务文件）
+                └─result     （存放两个文件，vlook_ending_file.csv，vlook&processed_ending_file.csv）
+    2. 复制 url 和选定项目文件夹后，会显示进度窗口
+        包含了进度条以及说明
+        ① 进度条显示目前正在处理那个环节（获取 all_report 中，生成 vlook&processing_ending_file 中等）
+    3. 当进度条结束，显示看照片页面
 """
 
 import datetime
@@ -16,7 +22,7 @@ import pandas as pd
 import concat_csv
 import downloader
 
-from tkinter import messagebox, Tk, StringVar, Label, Button, Entry, Text, Toplevel
+from tkinter import messagebox, Tk, StringVar, Label, Button, Entry, Text, Toplevel, ttk
 from tkinter.font import Font
 from tkinter.filedialog import askopenfilename, askdirectory
 from utils.preprocessing_data import preprocessing_data
@@ -26,6 +32,7 @@ from utils.analyser import Wednesday, Thursday, Analyser
 class Main(object):
     def __init__(self):
         self.window = Tk()
+        self.ending_show = StringVar()
         self.ending_path = StringVar()
         self.ending_df = None
         self.boss2me_path = StringVar()
@@ -38,9 +45,16 @@ class Main(object):
         self.day = None
         self.structured_df = None
         self.message = None
+        self.select_box = None
 
-    def _get_ending(self):
-        ending_path = askopenfilename()
+    def _get_ending(self, *args):
+        if self.select_box.get() == '周三':
+            ending_path = os.getcwd() + '/utils/files/ending_wednesday.csv'
+            self.ending_show.set('选择周三')
+        else:
+            ending_path = os.getcwd() + '/utils/files/ending_thursday.csv'
+            self.ending_show.set('选择周四')
+
         self.ending_path.set(ending_path)
         self.window.update()
         # self.ending_path = self.ending_path.get()
@@ -100,10 +114,10 @@ class Main(object):
 
             message = ''
             for date, tracking_list in date_dict.items():
-                message += date + ', tracking_code 为: '
+                message += '未搜索到的 tracking_code 为: '
                 for tracking_code in tracking_list:
                     message += tracking_code + '/'
-                message += '\n\n'
+                break
 
             text.pack()
             text.insert('insert', message)
@@ -161,6 +175,7 @@ class Main(object):
 
             # 生成 csv
             date_time = datetime.datetime.now().strftime('%Y-%m-%d %H-%M-%S')
+            self.result_df.drop_duplicates(subset=['Tracking Code'], inplace=True)
             self.result_df.to_csv(str(self.save_folder_path.get()) + '/first' + date_time + '.csv', index=False)
 
             analyser = Analyser(self.window, self.result_df, self.save_folder_path.get(), '4')
@@ -178,7 +193,10 @@ class Main(object):
 
             # 生成 csv
             res_df = self.result_df.copy()
-            res_df = res_df.drop(columns=['Week#', 'Updated Reason Code'])
+            try:
+                res_df = res_df.drop(columns=['Week#', 'Updated Reason Code'])
+            except BaseException:
+                pass
             date_time = datetime.datetime.now().strftime('%Y-%m-%d %H-%M-%S')
             res_df.to_csv(str(self.save_folder_path.get()) + '/HF first' + date_time + '.csv', index=False)
 
@@ -229,21 +247,6 @@ class Main(object):
 
     @staticmethod
     def show_update():
-    #         # v1.11.13
-    #         message = '版本 v1.11.13\n更新内容:\n1. Mailroom/lobby 转为人工判断'
-    #         # v1.11.13.01
-    #         message += '\n\n版本 v1.11.13.01\n更新内容:\n1. 解决 POD 存在 nan 的情况'
-    #         # v1.11.13.02
-    #         message += '\n\n版本 v1.11.13.02\n更新内容:\n1. 增加更新状态，“无可用更新”'
-    #         # v1.11.24.01
-    #         message += '\n\n版本 v1.11.24.01\n更新内容:\n'
-    #         message += '''- 修复若干功能
-    #     1. 修复了如有多张照片，则会显示多张照片
-    #     2. 修复了在点击 next 的时候，检查窗口关闭无法继续的 bug，改为手动选择是否继续
-    #     3. 修复了合并界面不显示路径的 bug
-    # - 新增若干功能
-    #     1. 新增当 ending file 选错时的提示
-    #     2. 新增当合并 ending, boss2me, all_report 不全的提示界面，点击继续可无视缺失继续 '''
 
         # v2.12.02.01
         message = '版本 v2.12.02.01\n更新内容:\n'
@@ -263,12 +266,16 @@ class Main(object):
     def run(self):
         self.window.title(f'♥ Only For JJ ♥ : version: {self.version}')
         self.window.geometry('850x450')
-        # self.wrong_message = StringVar()
+        # self.wrong_meself.ssage = StringVar()
 
         # label ending
-        Label(self.window, text="ending file:").place(x=100, y=100)
-        Entry(self.window, textvariable=self.ending_path, width='60').place(x=220, y=100)
-        Button(self.window, text="select", command=self._get_ending, width='10').place(x=680, y=100)
+        self.select_box = ttk.Combobox(
+            master=self.window,
+            textvariable=self.ending_show
+        )
+        self.select_box.place(x=100, y=100)
+        self.select_box['values'] = ['周三', '周四']
+        self.select_box.bind("<<ComboboxSelected>>", self._get_ending)
 
         # label boss2me
         Label(self.window, text="boss2me file:").place(x=100, y=150)

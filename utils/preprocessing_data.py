@@ -43,11 +43,11 @@ def preprocessing_data(ending_df, boss2me_df, all_report_df, day):
             res_data['Reason for Complaint'] = same['Issue']
 
         # 5. 遍历 same 的标题，将 same 的数据写入 same 和 res_data 共有的标题下
-        print('\nres', res_data.columns)
+        # print('\nres', res_data.columns)
         for title in same.columns:
             if title in res_data.columns:
                 res_data[title] = same[title]
-                print(title + ' success to write in')
+                # print(title + ' success to write in')
 
         # 6. 将 res_data 的标题重置为 ending 的标题
         res_data.columns = big_sheet.columns
@@ -101,11 +101,11 @@ def preprocessing_data(ending_df, boss2me_df, all_report_df, day):
             res_data['Reason for Complaint'] = same['Issue']
 
         # 5. 遍历 same 的标题，将 same 的数据写入 same 和 res_data 共有的标题下
-        print('\nres', res_data.columns)
+        # print('\nres', res_data.columns)
         for title in same.columns:
             if title in res_data.columns:
                 res_data[title] = same[title]
-                print(title + ' success to write in')
+                # print(title + ' success to write in')
 
         # 6. 将 res_data 的标题重置为 ending 的标题
         columns_list = list(big_sheet.columns)
@@ -118,6 +118,6 @@ def preprocessing_data(ending_df, boss2me_df, all_report_df, day):
 
 
 def change_title_name(pd, pd_title, pd_title_change):
-    print(pd_title, 'change to', pd_title_change)
+    # print(pd_title, 'change to', pd_title_change)
     df = pd.rename(columns={pd_title: pd_title_change})
     return df

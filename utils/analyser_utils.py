@@ -1,7 +1,9 @@
+import os
 import datetime
 import pandas as pd
 
-DICT_DF = pd.read_excel('utils/files/dictionary.xlsx')
+
+DICT_DF = pd.read_excel(os.getcwd() + '/utils/files/dictionary.xlsx')
 
 
 def is_mouth_day_year(date):
@@ -27,6 +29,7 @@ def get_week_num(data_frame_row):
         # res_date = datetime.datetime.strptime(date_str, '%Y-%m-%d %H:%M:%S')
         data_frame_row['Week#'] = [res_date.isocalendar()[1]]
         return data_frame_row
+
 
 
 def nan_to_none(x):
@@ -65,6 +68,7 @@ def copy_reason(data_frame_row, index):
 
 def get_status(data_frame_row, day, policy):
     # 判断 shipment status 完了
+    print(data_frame_row['Shipment status'])
     if 'GEOCODED'.lower() in str(data_frame_row['Shipment status'].values[0]).lower():
         data_frame_row = copy_reason(data_frame_row, 29)
         return data_frame_row
@@ -506,19 +510,23 @@ def date_subtract(compared_date, schedule_date):
     if pd.isna(schedule_date) or str(schedule_date) == 'nan':
         return -100
     else:
-        compared_date = datetime.datetime.strptime(compared_date, '%Y-%m-%d')
-        # 如果 scheduled date 是月日年
-        if is_mouth_day_year(schedule_date):
-            schedule_date = datetime.datetime.strptime(schedule_date, '%m/%d/%Y')
-        else:
-            # print('卧槽尼玛', schedule_date)
-            schedule_date = datetime.datetime.strptime(schedule_date, '%Y-%m-%d')
-        return (compared_date - schedule_date).days
+        try:
+            print(compared_date, schedule_date)
+            compared_date = datetime.datetime.strptime(compared_date, '%Y-%m-%d')
+            # 如果 scheduled date 是月日年
+            if is_mouth_day_year(schedule_date):
+                schedule_date = datetime.datetime.strptime(schedule_date, '%m/%d/%Y')
+            else:
+                # print('卧槽尼玛', schedule_date)
+                schedule_date = datetime.datetime.strptime(schedule_date, '%Y-%m-%d')
+            return (compared_date - schedule_date).days
+        except ValueError:
+            return -100
 
 
 def time_upper_than(time_str, upper, policy):
     upper_time = datetime.datetime.strptime(upper, '%H:%M')
-    upper_time += datetime.timedelta(minutes=policy)
+    upper_time += datetime.timedelta(minutes=int(policy))
     time_str = datetime.datetime.strptime(time_str, '%H:%M')
     # print(upper_time, '-', time_str, '=', end=' ')
     # print(int(upper_time.strftime('%H%M')) - int(time_str.strftime('%H%M')))
@@ -539,3 +547,239 @@ def write_in_delivery_comments(data_frame_row, string):
         # data_frame_row['Delivery Comments'] = [data_frame_row['Delivery Comments'].values[0] + '/' + string]
         data_frame_row['Delivery Comments'] = [string]
         return data_frame_row
+
+
+def data_frame_row_time_change(data_frame_row):
+    region = data_frame_row['Region Code'].values[0]
+
+    try:
+        if pd.isna(region):
+            return data_frame_row
+
+        # 判断 Region Code 属于那个地区
+        elif region == 'CHI' or region == 'DFW' or region == 'HOU':
+            # early 时间 latest 时间
+            early_time_str = str(data_frame_row['Earliest Dropoff Time'].values[0])
+            new_time = time_subtract(early_time_str, hours=2, days=0)
+            new_time_str = new_time.strftime('%H:%M')
+            data_frame_row['Earliest Dropoff Time'] = [new_time_str]
+
+            latest_time_str = str(data_frame_row['Latest Dropoff Time'].values[0])
+            new_time = time_subtract(latest_time_str, hours=2, days=0)
+            new_time_str = new_time.strftime('%H:%M')
+            data_frame_row['Latest Dropoff Time'] = [new_time_str]
+            # 针对 inbound
+            # 如果 时间有空的，跳过
+            if pd.isna(data_frame_row['Inbound Scan Time'].values[0]):
+                new_time = None
+            else:
+                inbound_time_str = str(data_frame_row['Inbound Scan Time'].values[0])
+                new_time = time_subtract(inbound_time_str, hours=2, days=0)
+                new_time_str = new_time.strftime('%H:%M')
+                data_frame_row['Inbound Scan Time'] = [new_time_str]
+
+            # 针对 pickup time
+            if pd.isna(data_frame_row['Pickup Time'].values[0]):
+                pass
+            else:
+                pickup_time_str = str(data_frame_row['Pickup Time'].values[0])
+                new_pickup_time = time_subtract(pickup_time_str, hours=2, days=0)
+                new_pickup_time_str = new_pickup_time.strftime('%H:%M')
+                data_frame_row['Pickup Time'] = [new_pickup_time_str]
+
+            # 针对 drop off time
+            if pd.isna(data_frame_row['Drop off time'].values[0]):
+                pass
+            else:
+                drop_time_str = str(data_frame_row['Drop off time'].values[0])
+                new_drop_time = time_subtract(drop_time_str, hours=2, days=0)
+                new_drop_time_str = new_drop_time.strftime('%H:%M')
+                data_frame_row['Drop off time'] = [new_drop_time_str]
+
+            # 如果前进了一天
+            if new_time is None:
+                return data_frame_row
+            else:
+                if str(new_time.date()) == '1899-12-31':
+                    date_str = str(data_frame_row['Inbound Scan Date (Linehaul)'].values[0])
+
+                    time_object = datetime.datetime.strptime(date_str, '%Y-%m-%d')
+                    new_date = time_object - datetime.timedelta(days=1)
+                    new_date_str = new_date.strftime('%Y-%m-%d')
+
+                    data_frame_row['Inbound Scan Date (Linehaul)'] = [new_date_str]
+                    return data_frame_row
+                else:
+                    return data_frame_row
+
+        elif region == 'JFK' or region == 'PHL' or region == 'EWR':
+            # early 时间 latest 时间
+            early_time_str = str(data_frame_row['Earliest Dropoff Time'].values[0])
+            new_time = time_subtract(early_time_str, hours=3, days=0)
+            new_time_str = new_time.strftime('%H:%M')
+            data_frame_row['Earliest Dropoff Time'] = [new_time_str]
+
+            latest_time_str = str(data_frame_row['Latest Dropoff Time'].values[0])
+            new_time = time_subtract(latest_time_str, hours=3, days=0)
+            new_time_str = new_time.strftime('%H:%M')
+            data_frame_row['Latest Dropoff Time'] = [new_time_str]
+            # 针对 inbound
+            # 如果 时间有空的，跳过
+            if pd.isna(data_frame_row['Inbound Scan Time'].values[0]):
+                new_time = None
+            else:
+                inbound_time_str = str(data_frame_row['Inbound Scan Time'].values[0])
+                new_time = time_subtract(inbound_time_str, hours=3, days=0)
+                new_time_str = new_time.strftime('%H:%M')
+                data_frame_row['Inbound Scan Time'] = [new_time_str]
+
+            # 针对 pickup time
+            if pd.isna(data_frame_row['Pickup Time'].values[0]):
+                pass
+            else:
+                pickup_time_str = str(data_frame_row['Pickup Time'].values[0])
+                new_pickup_time = time_subtract(pickup_time_str, hours=3, days=0)
+                new_pickup_time_str = new_pickup_time.strftime('%H:%M')
+                data_frame_row['Pickup Time'] = [new_pickup_time_str]
+
+            # 针对 drop off time
+            if pd.isna(data_frame_row['Drop off time'].values[0]):
+                pass
+            else:
+                drop_time_str = str(data_frame_row['Drop off time'].values[0])
+                new_drop_time = time_subtract(drop_time_str, hours=3, days=0)
+                new_drop_time_str = new_drop_time.strftime('%H:%M')
+                data_frame_row['Drop off time'] = [new_drop_time_str]
+
+            # 如果前进了一天
+            if new_time is None:
+                return data_frame_row
+            else:
+                if str(new_time.date()) == '1899-12-31':
+                    date_str = str(data_frame_row['Inbound Scan Date (Linehaul)'].values[0])
+
+                    time_object = datetime.datetime.strptime(date_str, '%Y-%m-%d')
+                    new_date = time_object - datetime.timedelta(days=1)
+                    new_date_str = new_date.strftime('%Y-%m-%d')
+
+                    data_frame_row['Inbound Scan Date (Linehaul)'] = [new_date_str]
+                    return data_frame_row
+                else:
+                    return data_frame_row
+
+        elif region == 'PHX':
+            # early 时间 latest 时间
+            early_time_str = str(data_frame_row['Earliest Dropoff Time'].values[0])
+            new_time = time_subtract(early_time_str, hours=1, days=0)
+            new_time_str = new_time.strftime('%H:%M')
+            data_frame_row['Earliest Dropoff Time'] = [new_time_str]
+
+            latest_time_str = str(data_frame_row['Latest Dropoff Time'].values[0])
+            new_time = time_subtract(latest_time_str, hours=1, days=0)
+            new_time_str = new_time.strftime('%H:%M')
+            data_frame_row['Latest Dropoff Time'] = [new_time_str]
+            # 针对 inbound
+            # 如果 时间有空的，跳过
+            if pd.isna(data_frame_row['Inbound Scan Time'].values[0]):
+                new_time = None
+            else:
+                inbound_time_str = str(data_frame_row['Inbound Scan Time'].values[0])
+                new_time = time_subtract(inbound_time_str, hours=1, days=0)
+                new_time_str = new_time.strftime('%H:%M')
+                data_frame_row['Inbound Scane Time'] = [new_time_str]
+
+            # 针对 pickup time
+            if pd.isna(data_frame_row['Pickup Time'].values[0]):
+                pass
+            else:
+                pickup_time_str = str(data_frame_row['Pickup Time'].values[0])
+                new_pickup_time = time_subtract(pickup_time_str, hours=1, days=0)
+                new_pickup_time_str = new_pickup_time.strftime('%H:%M')
+                data_frame_row['Pickup Time'] = [new_pickup_time_str]
+
+            # 针对 drop off time
+            if pd.isna(data_frame_row['Drop off time'].values[0]):
+                pass
+            else:
+                drop_time_str = str(data_frame_row['Drop off time'].values[0])
+                new_drop_time = time_subtract(drop_time_str, hours=1, days=0)
+                new_drop_time_str = new_drop_time.strftime('%H:%M')
+                data_frame_row['Drop off time'] = [new_drop_time_str]
+
+            # 如果前进了一天
+            if new_time is None:
+                return data_frame_row
+            else:
+                if str(new_time.date()) == '1899-12-31':
+                    date_str = str(data_frame_row['Inbound Scan Date (Linehaul)'].values[0])
+
+                    time_object = datetime.datetime.strptime(date_str, '%Y-%m-%d')
+                    new_date = time_object - datetime.timedelta(days=1)
+                    new_date_str = new_date.strftime('%Y-%m-%d')
+
+                    data_frame_row['Inbound Scan Date (Linehaul)'] = [new_date_str]
+                    return data_frame_row
+                else:
+                    return data_frame_row
+
+        else:
+            return data_frame_row
+    except ValueError:
+        return data_frame_row
+
+
+def time_subtract(time_str, hours, days):
+    time_object = datetime.datetime.strptime(time_str, '%H:%M')
+    new_time = time_object - datetime.timedelta(hours=hours, days=days)
+    return new_time
+
+
+def change_Scheduled_Delivery_Date(data_frame_row):
+    # if pd.isna(data_frame_row['Scheduled Delivery Date'][0]):
+    #     return data_frame_row
+    # else:
+    s_date_str = data_frame_row['Scheduled Delivery Date'].values[0]
+    if format_1(s_date_str):
+        s_str = datetime.datetime.strptime(s_date_str, '%Y/%m/%d')
+        s_str = s_str.strftime('%Y-%m-%d')
+        data_frame_row['Scheduled Delivery Date'] = [s_str]
+        return data_frame_row
+    elif format_2(s_date_str):
+        s_str = datetime.datetime.strptime(s_date_str, '%m/%d/%Y')
+        s_str = s_str.strftime('%Y-%m-%d')
+        data_frame_row['Scheduled Delivery Date'] = [s_str]
+        return data_frame_row
+    elif format_3(s_date_str):
+        return data_frame_row
+    else:
+        return data_frame_row
+
+
+def format_1(date):
+    try:
+        datetime.datetime.strptime(date, "%Y/%m/%d")
+        return True
+    except:
+        return False
+
+
+def format_2(date):
+    try:
+        datetime.datetime.strptime(date, "%m/%d/%Y")
+        return True
+    except:
+        return False
+
+
+def format_3(date):
+    try:
+        datetime.datetime.strptime(date, "%Y-%m-%d")
+        return True
+    except:
+        return False
+
+
+if __name__ == '__main__':
+    d = '2021/2/2'
+    g = datetime.datetime.strptime(d, '%Y/%m/%d')
+    print(g)

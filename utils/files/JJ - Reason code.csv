@@ -1,0 +1,164 @@
+POD,POD Qaulity,Issue Category,Delivery Comments,AH Assignment
+,,,,
+,,,,
+,周四,Operation,Inbound ontime but outbound late for 1 day,Pickup late
+,,Operation,Inbound ontime but outbound late for 2 days,Pickup late
+,,Operation,Inbound ontime but outbound late for 3 days,Pickup late
+,,Operation,Inbound ok but pickup failed,Pickup failed
+,,Operation,Inbound ok but pickup missing,Pickup missing
+,,Operation,Inbound ok but pickup damaged,Pickup damaged
+,,,,
+,,No Issue with AX delivery,Confirmed Delivery,Confirmed Delivery
+,,No Issue with AX delivery,Confirmed ontime Delivery,Confirmed Delivery
+,,No Issue with AX delivery,Positive feedback: I was not aware that the box was delivered!,Confirmed Delivery
+,,No Issue with AX delivery,"positive feedback: Nevermind, back door.",Confirmed Delivery
+,,No Issue with AX delivery,Early delivery,Early delivery
+,,,,
+,,Not Due to AX performance,Can't reach out to customer,Attempted/No Access
+,,Not Due to AX performance,No Access/ Access code not working/ Can't reach out to customer,Attempted/No Access
+,,Not Due to AX performance,Redelivered to the new address provided,Confirmed Delivery
+,,Not Due to AX performance,Delivery failed - address/ Doorman/ Road construction,Incorrect address listed
+,,Not Due to AX performance,No Access/ Access code not working/ Can't reach out to customer,Incorrect address listed
+,,Not Due to AX performance,Wrong address,Incorrect address listed
+,,Not Due to AX performance,Package refused,Package refused
+,,Not Due to AX performance,Cancelled Order,Cancelled Order
+,,Not Due to AX performance,No Access code,Outside Service Area
+,,Not Due to AX performance,Out of delievery area,Outside Service Area
+,,Not Due to AX performance,pickup ok but delivery failed - redeliver requested,Rescheduled
+,,Not Due to AX performance,Inbound late,Received late
+,,Not Due to AX performance,Inbound missing,Received missing
+,,Not Due to AX performance,Inbound damaged,Received damaged
+,,Not Due to AX performance,Weather,Weather
+,,,,
+,,,,
+,GEOCODED,Routing,Goecoded right but didn't route,Misroute
+,,,,
+,周三,Operation,Inbound ok but pickup failed - pending,Missort
+,,Operation,Received ok but damaged at pickup,Damaged - AxleHire
+,,Operation,Inbound ok but outbound late,Missort
+,,Operation,Inbound ok but pickup damaged,Missort
+,,Operation,Inbound ok but pickup missing,Missort
+,,Operation,Inbound ok but pickup failed - assigned,Missort
+,,Operation,Inbound ok but pickup failed - discarded,Missort
+,,Operation,Inbound ok but pickup failed - en_route,Missort
+,,Operation,Inbound ontime but outbound late for 2 days,Missort
+,,Operation,Inbound slightly delay but pickup missing or damaged,Missort
+,,Operation,Inbound ontime but outbound late for 1 day,Missort
+,,Operation,Inbound ontime but outbound late for 2 days,Missort
+,,Operation,Inbound ontime but outbound late for 3 days,Missort
+,,Operation,Inbound ontime but outbound late for 4 days,Missort
+,,,,
+,,,,
+,,Delivery,Damaged box,Damaged box
+,,Delivery,Driver behavior,Innapropriate behavior
+,,,,
+,,,,
+,,Delivery,car problem,Not Delivered
+,,Delivery,pickup ok but delivery failed - out of chain,Not delivered
+,,Delivery,pickup ok but delivery failed,Not delivered
+No,no pic,Delivery,pickup ok but delivery failed - pending,Not delivered
+No,no pic,Delivery,pickup ok but delivery failed - missing,Not delivered
+No,no pic,Delivery,pickup ok but delivery failed - discarded,Not delivered
+,,,,
+,,,,
+,,Delivery,Driver didn't follow instruction,Delivery Cannot Be Confirmed
+No,Bad pic - doorman,Delivery,Outside community/ Mailroom/ Door man,Delivery Cannot Be Confirmed
+No,Bad pic - lobby,Delivery,Outside community/ Mailroom/ Door man,Delivery Cannot Be Confirmed
+No,Bad pic - garage door,Delivery,Outside community/ Mailroom/ Door man,Delivery Cannot Be Confirmed
+No,Bad pic - outside,Delivery,Outside community/ Mailroom/ Door man,Delivery Cannot Be Confirmed
+No,Bad pic - outside gate,Delivery,Outside community/ Mailroom/ Door man,Delivery Cannot Be Confirmed
+No,"Bad pic - have street#,but leave at outside gate",Delivery,Outside community/ Mailroom/ Door man,Delivery Cannot Be Confirmed
+No,Bad pic - outside building,Delivery,Outside community/ Mailroom/ Door man,Delivery Cannot Be Confirmed
+No,"Bad pic - have building#,but leave at outside building",Delivery,Outside community/ Mailroom/ Door man,Delivery Cannot Be Confirmed
+No,"Bad pic - outside building,although there is a street number but driver was not delivered to apt#",Delivery,Outside community/ Mailroom/ Door man,Delivery Cannot Be Confirmed
+No,Bad pic - mailroom,Delivery,Outside community/ Mailroom/ Door man,Delivery Cannot Be Confirmed
+,,,,
+No,Bad pic - inside door but not delivered to apt#,Delivery,Delivery Cannot Be Confirmed,Delivery Cannot Be Confirmed
+No,Bad pic - lawn,Delivery,Delivery Cannot Be Confirmed,Delivery Cannot Be Confirmed
+No,no pic,Delivery,Delivery Cannot Be Confirmed,Delivery Cannot Be Confirmed
+No,Bad pic - nothing,Delivery,Delivery Cannot Be Confirmed,Delivery Cannot Be Confirmed
+No,Bad pic - by stairs,Delivery,Delivery Cannot Be Confirmed,Delivery Cannot Be Confirmed
+No,Bad pic - near stairs,Delivery,Delivery Cannot Be Confirmed,Delivery Cannot Be Confirmed
+No,Bad pic - no box in pic,Delivery,Delivery Cannot Be Confirmed,Delivery Cannot Be Confirmed
+No,Bad pic - in the trunk,Delivery,Delivery Cannot Be Confirmed,Delivery Cannot Be Confirmed
+No,Bad pic - only box in pic,Delivery,Delivery Cannot Be Confirmed,Delivery Cannot Be Confirmed
+No,Bad pic - too dark to tell,Delivery,Delivery Cannot Be Confirmed,Delivery Cannot Be Confirmed
+No,"Bad pic - have street# but no apt#,cannot be confirmed",Delivery,Delivery Cannot Be Confirmed,Delivery Cannot Be Confirmed
+No,"Bad pic - have street# but no unit#,cannot be confirmed",Delivery,Delivery Cannot Be Confirmed,Delivery Cannot Be Confirmed
+No,"Bad pic - no apt#,cannot be compared with other front door of the same order and Google Maps does not have pic of this address,cannot be confirmed",Delivery,Delivery Cannot Be Confirmed,Delivery Cannot Be Confirmed
+No,"Bad pic - no apt#,cannot be compared with other front door of the same order and Google Maps does not have pic of this address's front door,cannot be confirmed",Delivery,Delivery Cannot Be Confirmed,Delivery Cannot Be Confirmed
+,,,,
+,,,,
+No,"Bad pic - pic was no apt #, but compared with other pics, not the same front door",Delivery,Delivered to Wrong Address,Delivered to Wrong Address
+No,"Bad pic - have street# but compared with other pics, not the same front door",Delivery,Delivered to Wrong Address,Delivered to Wrong Address
+No,"Bad pic - have apt# but compared with other pics, not the same front door",Delivery,Delivered to Wrong Address,Delivered to Wrong Address
+No,"pic shows building #,the correct is #",Delivery,Delivered to Wrong Address,Delivered to Wrong Address
+No,"pic shows street #,the correct is #",Delivery,Delivered to Wrong Address,Delivered to Wrong Address
+No,"pic shows apt #,the correct is apt#",Delivery,Delivered to Wrong Address,Delivered to Wrong Address
+No,"pic shows unit #,the correct is unit#",Delivery,Delivered to Wrong Address,Delivered to Wrong Address
+,,,,
+Yes,Need better pic-Suggest driver to take pic of the building # as well,Delivery,Pickup after 12pm but delivery late for same day,Late
+Yes,Need better pic-Suggest driver to take pic of the building # as well,Delivery,pickup late for 1 day and delivery late for 1 day,Late
+Yes,Need better pic-Suggest driver to take pic of the building # as well,Delivery,pickup ok but delivery late for same day,Late
+Yes,Good pic,Delivery,pickup ok but delivery late for 1 day,Late
+,,,,
+常用,,,,
+,,Not Due to AX performance,Can't reach out to customer,Attempted/No Access
+,,Not Due to AX performance,No Access/ Access code not working/ Can't reach out to customer,Attempted/No Access
+,,AX linehaul issue,AX linehaul late,Late
+No,"pic shows building #,the correct is #",Delivery,Delivered to Wrong Address,Delivered to Wrong Address
+No,"pic shows street #,the correct is #",Delivery,Delivered to Wrong Address,Delivered to Wrong Address
+No,"pic shows apt #,the correct is apt#",Delivery,Delivered to Wrong Address,Delivered to Wrong Address
+No,"pic shows unit #,the correct is unit#",Delivery,Delivered to Wrong Address,Delivered to Wrong Address
+No,Bad pic - nothing,Delivery,Delivery Cannot Be Confirmed,Delivery Cannot Be Confirmed
+No,Bad pic - by stairs,Delivery,Delivery Cannot Be Confirmed,Delivery Cannot Be Confirmed
+No,Bad pic - too dark to tell,Delivery,Delivery Cannot Be Confirmed,Delivery Cannot Be Confirmed
+No,Bad pic - no box in pic,Delivery,Delivery Cannot Be Confirmed,Delivery Cannot Be Confirmed
+No,Bad pic - only box in pic,Delivery,Delivery Cannot Be Confirmed,Delivery Cannot Be Confirmed
+No,Bad pic - damaged pic,Delivery,Delivery Cannot Be Confirmed,Delivery Cannot Be Confirmed
+No,Bad pic - lobby,Delivery,Outside community/ Mailroom/ Door man,Delivery Cannot Be Confirmed
+No,Bad pic - outside,Delivery,Outside community/ Mailroom/ Door man,Delivery Cannot Be Confirmed
+No,Bad pic - outside building,Delivery,Outside community/ Mailroom/ Door man,Delivery Cannot Be Confirmed
+No,Bad pic - outside gate,Delivery,Outside community/ Mailroom/ Door man,Delivery Cannot Be Confirmed
+No,Bad pic - mailroom,Delivery,Outside community/ Mailroom/ Door man,Delivery Cannot Be Confirmed
+Yes,Good pic,No Issue with AX delivery,Confirmed ontime Delivery,Confirmed Delivery
+Yes,Need better pic-Suggest driver to take pic of the building # as well,No Issue with AX delivery,Confirmed ontime Delivery,Confirmed Delivery
+,,,,
+,,,,
+Late delivery,,Late delivery,,
+Early delivery,,Early delivery,,
+"not confirming completion of a delivery - This is in reference to POD - Missing, Bad, Ect.",POD is primary issue,Not Confirming Completion,,
+delivering package to the wrong address,,Wrong Address,,
+not following their delivery preferences - This is primarily for leaving in the wrong location,Mailroom/ lobby/ out of gate etc.,Not Following Delivery Preferences,,
+Damages to a delivery,,Damages to a delivery,,
+Your professionalism - Customer complaint based on words exchanged or terrible actions.,Driver behavior issue,Your professionalism - Customer complaint based on words exchanged or terrible actions.,,
+,,,,
+粘贴Driver和DSP时重新加一列（标红字体），并且按月份粘,late delivery,,,
+,early delivery,,,
+,"not confirming completion of a delivery - This is in reference to POD - Missing, Bad, Ect.",POD is primary issue,Not Confirming Completion,
+,delivering package to the wrong address,,,
+,not following their delivery preferences - This is primarily for leaving in the wrong location,Mailroom/ lobby/ out of gate etc.,Not Following Delivery Preferences,
+,damages to a delivery,,,
+,Your professionalism - Customer complaint based on words exchanged or terrible actions.,Driver behavior issue,,
+,,,,
+,,,,
+,"not confirming completion of a delivery - This is in reference to POD - Missing, Bad, Ect.",POD is primary issue,,
+,,,,
+,not following their delivery preferences - This is primarily for leaving in the wrong location,Mailroom/ lobby/ out of gate etc.,,
+,,,,
+常见的时区,CHI,"-""2:00""",,
+,EWR,"-""3:00""",,
+,JFK,"-""3:00""",,
+,DFW,"-""2:00""",,
+,HOU,"-""2:00""",,
+,PHL,"-""3:00""",,
+,PHX,"-""1:00""",,
+,,,,
+一些运费的公式,freshly,MIN(MIN(Freshly/2，Retail)，60) + 5.88,,
+,dinnerly ,"min(70, Retail) + https://drive.google.com/drive/folders/1OusDJsnsdOK2jkjAjIQqfbYFWsW7SE0S",,
+,Seko Logistics,"min(Retail/2, 30) + 4.75",,
+,Daily Harvest,"min(Retail/2, 40) + https://docs.google.com/spreadsheets/d/1UgEQEMcezIN-VYaZVDd_IS_WQIWfgGSn/edit#gid=1124844649",,
+,,"min(Retail/2, 35)
+https://drive.google.com/drive/folders/14IpvgMzwMrggRqbEDdUT6wvCaJccKgg9?usp=sharing",,
+,,,,
+重要事项,hello fresh & everyplate region 对应的 sdlax receive late 评判为 axlinehaul issue,,,

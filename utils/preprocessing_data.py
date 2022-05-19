@@ -62,14 +62,16 @@ def preprocessing_data(ending_df, boss2me_df, all_report_df, day):
 
         # 3. initialize res_data
         columns_list = list(big_sheet.columns)
-        columns_list.append('delivery_date')
+        columns_list.append('Delivery Date')
         columns_list.append('Earliest Dropoff Time')
         columns_list.append('Latest Dropoff Time')
+        columns_list.append('Earliest Dropoff Date')
+        columns_list.append('Latest Dropoff Date')
         res_data = pd.DataFrame(columns=columns_list, dtype='object')
 
         # 1. 将boss "tracking code" 改为和 report "Tracking Code" 一致
         # boss 的 tracking code 有多种可能 "tracking #" or "Tracking Number"
-        boss2me = change_title_name(boss2me, re.search(r'\'[Tt]racking(#| Number| code| Code|_code|_Code)\'',
+        boss2me = change_title_name(boss2me, re.search(r'\'[Tt]racking(#| Number| code| Code|_code|_Code|)\'',
                                                        str(boss2me.columns)).group(0)[1:-1], "Tracking Code")
 
         # 2. 合并 boss 和 report 合并为 same
@@ -109,9 +111,11 @@ def preprocessing_data(ending_df, boss2me_df, all_report_df, day):
 
         # 6. 将 res_data 的标题重置为 ending 的标题
         columns_list = list(big_sheet.columns)
-        columns_list.append('delivery_date')
+        columns_list.append('Delivery Date')
         columns_list.append('Earliest Dropoff Time')
         columns_list.append('Latest Dropoff Time')
+        columns_list.append('Earliest Dropoff Date')
+        columns_list.append('Latest Dropoff Date')
         res_data.columns = columns_list
 
         return res_data

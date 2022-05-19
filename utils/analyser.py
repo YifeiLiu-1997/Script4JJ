@@ -735,7 +735,7 @@ class Wednesday(object):
             # 填入 week √
             temp = analyser_utils.get_week_num(temp)
             # 修改时区
-            temp = analyser_utils.data_frame_row_time_change(temp)
+            # temp = analyser_utils.data_frame_row_time_change(temp)
             # 分析 status
             res_data.iloc[index: index + 1, :] = analyser_utils.get_status(temp, day='3', policy=self.policy)
             result = pd.concat([result, temp])

@@ -55,6 +55,8 @@ def preprocessing_data(ending_df, boss2me_df, all_report_df, day):
         return res_data
 
     elif day == '3':
+        print(ending_df.columns)
+        print(all_report_df.columns)
         # 0. 获取文件
         big_sheet = ending_df
         boss2me = boss2me_df
@@ -76,6 +78,7 @@ def preprocessing_data(ending_df, boss2me_df, all_report_df, day):
 
         # 2. 合并 boss 和 report 合并为 same
         same = pd.merge(boss2me, report, how='left', on='Tracking Code')
+        same.to_csv('test.csv')
 
         # 4. 将 res_data 的一些标题改为 same 的
         # ending 与 same 的不同除 Region Code --> Region, REgion Code --> Region

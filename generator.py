@@ -24,9 +24,11 @@ class Generator(object):
     def get_final(self, csv_file):
         # 1. 读入传入的 csv
         res_df = pd.read_csv(csv_file)
+        res_df.rename(columns={'HF Reason Code': 'AH Assessment'}, inplace=True)
         # 2. 遍历 res_df
         for idx, row in res_df.iterrows():
             res_df.iloc[idx: idx + 1, :] = self.parse_rows(res_df.iloc[idx: idx + 1, :])
+            print(self.parse_rows(res_df.iloc[idx: idx + 1, :]))
         return res_df
 
     def parse_rows(self, data_frame_rows):
@@ -34,7 +36,8 @@ class Generator(object):
         if pd.isna(data_frame_rows['Answer Number'].values[0]):
             return data_frame_rows
 
-        number = data_frame_rows['Answer Number'].values[0]
+        number = int(data_frame_rows['Answer Number'].values[0])
+        # print('number:', number)
 
         # POD,POD Qaulity,Issue Category,Delivery Comments,AH Assignment
         # print(self.reason_code.loc[int(number), 'POD Qaulity'])
@@ -52,10 +55,10 @@ class Generator(object):
                 data_frame_rows = self.copy_rows(data_frame_rows, int(109))
                 apt_answer = str(data_frame_rows['POD Quality'].values[0]).\
                     replace('shows apt #', f'shows apt #{answer_list[0]}').\
-                    replace('the correct is #', f'the correct is apt#{answer_list[1]}')
+                    replace('the correct is apt#', f'the correct is apt#{answer_list[1]}')
                 data_frame_rows['POD Quality'] = [apt_answer]
                 return data_frame_rows
-            elif 's' in answer_list:
+            elif 'st' in answer_list:
                 data_frame_rows = self.copy_rows(data_frame_rows, int(108))
                 s_answer = str(data_frame_rows['POD Quality'].values[0]).\
                     replace('shows street #', f'shows street #{answer_list[0]}').\
@@ -69,12 +72,15 @@ class Generator(object):
                     replace('the correct is #', f'the correct is #{answer_list[1]}')
                 data_frame_rows['POD Quality'] = [b_answer]
                 return data_frame_rows
+            else:
+                return data_frame_rows
         else:
             data_frame_rows = self.copy_rows(data_frame_rows, int(number))
             return data_frame_rows
 
     def copy_rows(self, data_frame_row, index):
-
+        pd.set_option("display.max_columns", 50)
+        print(data_frame_row, 'index', index)
         def nan_to_none(x):
             if str(x) == 'nan' or pd.isna(x):
                 return ''
@@ -97,6 +103,8 @@ class Generator(object):
             # print('不是空的')
             data_frame_row['POD Valid?'] = [nan_to_none(self.reason_code.loc[index, 'POD'])]
             data_frame_row['POD Quality'] = [nan_to_none(self.reason_code.loc[index, 'POD Qaulity'])]
+            if index == 122 or index == 123:
+                return data_frame_row
             # 如果本来就有，比如已经是 Delivery 了，你再加个 Delivery 就不对了
             if self.reason_code.loc[index, 'Issue Category'] in str(data_frame_row['Issue Category'].values[0]):
                 pass
@@ -111,9 +119,19 @@ class Generator(object):
             return data_frame_row
 
 
-generator = Generator()
-print(generator.reason_code)
-df = generator.get_final(
-    csv_file="utils/files/test_files/HF W19 Carriers' faults (China Team) - FEIFEI.csv"
+def run(files, dis_files):
+    generator = Generator()
+    pd.set_option('display.max_columns', 50)
+    print(generator.reason_code.iloc[122:123, :])
+    print(generator.reason_code.iloc[123:124, :])
+    df = generator.get_final(
+        csv_file=files
+    )
+    # print(df)
+    df.to_csv(dis_files)
+
+
+run(
+    files=r"D:\Files\work\2022-07-14 HF\HF W27 - 工作表2.csv",
+    dis_files=r"D:\Files\work\2022-07-14 HF\HF W27 - 工作表100.csv"
 )
-df.to_csv('gg.csv')

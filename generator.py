@@ -2,13 +2,8 @@
     填完数字之后，传回来加数字的 csv，点击生成，出结果
 """
 
-import os
-import datetime
-import time
-import requests
-import json
+
 import pandas as pd
-from requests_ntlm import HttpNtlmAuth
 from tkinter import Toplevel, Label, Entry, Button, StringVar, messagebox
 
 
@@ -36,7 +31,7 @@ class Generator(object):
         if pd.isna(data_frame_rows['Answer Number'].values[0]):
             return data_frame_rows
 
-        number = int(data_frame_rows['Answer Number'].values[0])
+        number = data_frame_rows['Answer Number'].values[0]
         # print('number:', number)
 
         # POD,POD Qaulity,Issue Category,Delivery Comments,AH Assignment
@@ -128,10 +123,10 @@ def run(files, dis_files):
         csv_file=files
     )
     # print(df)
-    df.to_csv(dis_files)
+    df.to_csv(dis_files, index=False)
 
 
 run(
-    files=r"D:\Files\work\2022-07-14 HF\HF W27 - 工作表2.csv",
-    dis_files=r"D:\Files\work\2022-07-14 HF\HF W27 - 工作表100.csv"
+    files=r"D:\Files\work\2022-07-20 F75\F75 result.csv",
+    dis_files=r"D:\Files\work\2022-07-20 F75\F75 result - last.csv"
 )

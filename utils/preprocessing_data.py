@@ -64,7 +64,7 @@ def preprocessing_data(ending_df, boss2me_df, all_report_df, day):
 
         # 3. initialize res_data
         columns_list = list(big_sheet.columns)
-        columns_list.append('Delivery Date')
+        columns_list.append('delivery_date')
         columns_list.append('Earliest Dropoff Time')
         columns_list.append('Latest Dropoff Time')
         columns_list.append('Earliest Dropoff Date')
@@ -78,7 +78,6 @@ def preprocessing_data(ending_df, boss2me_df, all_report_df, day):
 
         # 2. 合并 boss 和 report 合并为 same
         same = pd.merge(boss2me, report, how='left', on='Tracking Code')
-        same.to_csv('test.csv')
 
         # 4. 将 res_data 的一些标题改为 same 的
         # ending 与 same 的不同除 Region Code --> Region, REgion Code --> Region
@@ -114,7 +113,7 @@ def preprocessing_data(ending_df, boss2me_df, all_report_df, day):
 
         # 6. 将 res_data 的标题重置为 ending 的标题
         columns_list = list(big_sheet.columns)
-        columns_list.append('Delivery Date')
+        columns_list.append('delivery_date')
         columns_list.append('Earliest Dropoff Time')
         columns_list.append('Latest Dropoff Time')
         columns_list.append('Earliest Dropoff Date')

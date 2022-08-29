@@ -85,22 +85,21 @@ def get_pickup_and_delivery_status(data_frame_row, day, policy):
                                    data_frame_row['Latest Dropoff Time'].values[0], policy):
                     data_frame_row = copy_reason(data_frame_row, 118)
                     return data_frame_row
-            # 配送晚于 1 天
+            # 配送晚于 2 天
             else:
                 data_frame_row = copy_reason(data_frame_row, 119)
 
                 if delivery_diff == 1:
-                    # data_frame_row['Delivery Comments'] = [
-                    #     f'pickup ok but delivery late for {delivery_diff} day']
-                    data_frame_row = write_in_delivery_comments(data_frame_row,
-                                                                f'pickup ok but delivery late for {delivery_diff} day')
                     return data_frame_row
                 else:
-                    # data_frame_row['Delivery Comments'] = [
-                    #     f'pickup ok but delivery late for {delivery_diff} days']
-                    data_frame_row = write_in_delivery_comments(data_frame_row,
-                                                                f'pickup ok but delivery late for {delivery_diff} days')
-                    return data_frame_row
+                    if delivery_diff < 2:
+                        return data_frame_row
+                    else:
+                        # data_frame_row['Delivery Comments'] = [
+                        #     f'pickup ok but delivery late for {delivery_diff} days']
+                        data_frame_row = write_in_delivery_comments(data_frame_row,
+                                                                    f'pickup ok but delivery late for {delivery_diff} days')
+                        return data_frame_row
         # 如果 pick 早于 12 点
         else:
             delivery_diff = date_subtract(data_frame_row['Drop off date'].values[0],
@@ -111,26 +110,25 @@ def get_pickup_and_delivery_status(data_frame_row, day, policy):
                                    data_frame_row['Latest Dropoff Time'].values[0], policy):
                     data_frame_row = copy_reason(data_frame_row, 118)
                     return data_frame_row
-            # 配送晚于 1 天
+            # 配送晚于 2 天
             else:
                 data_frame_row = copy_reason(data_frame_row, 119)
 
                 if delivery_diff == 1:
-                    # data_frame_row['Delivery Comments'] = [
-                    #     f'pickup ok but delivery late for {delivery_diff} day']
-                    data_frame_row = write_in_delivery_comments(data_frame_row,
-                                                                f'pickup ok but delivery late for {delivery_diff} day')
                     return data_frame_row
                 else:
-                    # data_frame_row['Delivery Comments'] = [
-                    #     f'pickup ok but delivery late for {delivery_diff} days']
-                    data_frame_row = write_in_delivery_comments(data_frame_row,
-                                                                f'pickup ok but delivery late for {delivery_diff} days')
-                    return data_frame_row
+                    if delivery_diff < 2:
+                        return data_frame_row
+                    else:
+                        # data_frame_row['Delivery Comments'] = [
+                        #     f'pickup ok but delivery late for {delivery_diff} days']
+                        data_frame_row = write_in_delivery_comments(data_frame_row,
+                                                                    f'pickup ok but delivery late for {delivery_diff} days')
+                        return data_frame_row
         return data_frame_row
 
     # 如果 pick 晚了 n 天
-    if pickup_diff > 0:
+    if pickup_diff > 1:
         # 对于周三
         if day == '3':
             data_frame_row = copy_reason(data_frame_row, 41)
@@ -242,13 +240,18 @@ def get_pickup_and_delivery_status(data_frame_row, day, policy):
             if delivery_diff == 1:
                 # data_frame_row['Delivery Comments'] = [
                 #     f'pickup ok but delivery late for {delivery_diff} day']
-                data_frame_row = write_in_delivery_comments(data_frame_row,
-                                                            f'pickup ok but delivery late for {delivery_diff} day')
+                # data_frame_row = write_in_delivery_comments(data_frame_row,
+                #                                             f'pickup ok but delivery late for {delivery_diff} day')
+                return data_frame_row
             else:
+                if delivery_diff < 2:
+                    return data_frame_row
                 # data_frame_row['Delivery Comments'] = [
                 #     f'pickup ok but delivery late for {delivery_diff} days']
-                data_frame_row = write_in_delivery_comments(data_frame_row,
+                else:
+                    data_frame_row = write_in_delivery_comments(data_frame_row,
                                                             f'pickup ok but delivery late for {delivery_diff} days')
+                    return data_frame_row
             return data_frame_row
 
 
@@ -425,12 +428,12 @@ def get_status(data_frame_row, day, policy):
                                      data_frame_row['Scheduled Delivery Date'].values[0])
         # 如果  inbound_diff 等于 0
         if inbound_diff == 0:
-            # 如果 inbound 当天晚于 5 点
-            if time_upper_than(data_frame_row['Inbound Scan Time'].values[0], '05:00', 0):
+            # 如果 inbound 当天晚于 12 点
+            if time_upper_than(data_frame_row['Inbound Scan Time'].values[0], '12:00', 0):
                 data_frame_row['Inbound Comments'] = ['Inbound late']
                 data_frame_row = copy_reason(data_frame_row, 24)
                 return data_frame_row
-            # 如果 inbound 当天早于 5 点
+            # 如果 inbound 当天早于 12 点
             else:
                 get_pickup_and_delivery_status(data_frame_row, day, policy)
 

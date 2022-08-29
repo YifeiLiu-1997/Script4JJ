@@ -10,6 +10,9 @@ def preprocessing_data(ending_df, boss2me_df, all_report_df, day):
         report = all_report_df
 
         # 3. initialize res_data
+        columns_list = list(big_sheet.columns)
+        columns_list.append('Earliest Dropoff Date')
+        columns_list.append('Latest Dropoff Date')
         res_data = pd.DataFrame(columns=big_sheet.columns, dtype='object')
 
         # 1. 将boss "tracking code" 改为和 report "Tracking Code" 一致

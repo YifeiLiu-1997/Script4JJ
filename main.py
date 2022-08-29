@@ -18,6 +18,8 @@ import datetime
 import os
 import sys
 import time
+import warnings
+
 import pandas as pd
 import concat_csv
 import downloader
@@ -27,6 +29,8 @@ from tkinter.font import Font
 from tkinter.filedialog import askopenfilename, askdirectory
 from utils.preprocessing_data import preprocessing_data
 from utils.analyser import Wednesday, Thursday, Analyser
+
+warnings.filterwarnings('ignore')
 
 
 class Main(object):

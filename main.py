@@ -45,44 +45,37 @@ class Main(object):
         self.all_report_df = None
         self.save_folder_path = StringVar()
         self.result_df = None
-        self.version = 'v2.12.22.01'
+        self.version = 'V1.0'
         self.day = None
         self.structured_df = None
         self.message = None
         self.select_box = None
 
     def _get_ending(self, *args):
-        if self.select_box.get() == '周三':
+        if self.select_box.get() == '智能分析':
             ending_path = os.getcwd() + '/utils/files/ending_wednesday.csv'
-            self.ending_show.set('选择周三')
+            self.ending_show.set('智能分析')
         else:
             ending_path = os.getcwd() + '/utils/files/ending_thursday.csv'
-            self.ending_show.set('选择周四')
+            self.ending_show.set('普通分析')
 
         self.ending_path.set(ending_path)
         self.window.update()
-        # self.ending_path = self.ending_path.get()
-        # self.ending_df = pd.read_csv(self.ending_path)
 
     def _get_boss2me(self):
         boss2me_path = askopenfilename()
         self.boss2me_path.set(boss2me_path)
         self.window.update()
-        # self.boss2me_path = self.boss2me_path.get()
-        # self.boss2me_df = pd.read_csv(self.boss2me_path)
 
     def _get_all_report(self):
         all_report_path = askopenfilename()
         self.all_report_path.set(all_report_path)
         self.window.update()
-        # self.all_report_path = self.all_report_path.get()
-        # self.all_report_df = pd.read_csv(self.all_report_path)
 
     def _get_save_folder_path(self):
         save_folder_path = askdirectory()
         self.save_folder_path.set(save_folder_path)
         self.window.update()
-        # self.save_folder_path = self.save_folder_path.get()
 
     def get_message(self, structured_df, day):
         if day == '3':
@@ -100,6 +93,7 @@ class Main(object):
             self.message = Toplevel(master=self.window)
             self.message.geometry('1200x600')
             self.message.title = '有错误'
+
             # 设置一个 Text
             font = Font(size=16)
             text = Text(self.message, width=80, height=20, font=font)
@@ -113,8 +107,6 @@ class Main(object):
                 date_dict[date] = []
                 for tracking_code in tracking_code_list:
                     date_dict[date].append(tracking_code)
-
-            print(date_dict)
 
             message = ''
             for date, tracking_list in date_dict.items():
@@ -158,7 +150,7 @@ class Main(object):
 
         # 检查policy有没有错
         if self.policy.get().isnumeric():
-            # 开始逐行分析已经结构化的 dataframe，通过老板发的，（行要一致）
+            # 开始逐行分析
             if 'thursday' in str(self.ending_path.get()).lower():
 
                 # 如果发现日期没对齐，显示出少了那些日期
@@ -186,13 +178,13 @@ class Main(object):
             analyser.run()
 
         elif self.day == '3':
-            # 周三的一些列名先改一下
+            # 列名先改一下
             self.structured_df.rename(columns={'Drop off Time': 'Drop off time'}, inplace=True)
 
             wednesday = Wednesday(self.structured_df, policy=self.policy.get())
             self.result_df = wednesday.analyse()
 
-            # 周三的一些列名先改回来
+            # 列名先改回来
             self.result_df.rename(columns={'Drop off time': 'Drop off Time'}, inplace=True)
 
             # 生成 csv
@@ -219,9 +211,7 @@ class Main(object):
     def get_update(self):
         # 获取当前文件夹地址
         current_path = os.getcwd()
-        print(current_path)
         decision = messagebox.askokcancel(title='更新检测', message='是否检测更新？')
-        print(decision)
         if decision:
             # 开始执行 git pull
             os.popen('cd ' + current_path)
@@ -229,12 +219,7 @@ class Main(object):
             execute = os.popen('git pull')
             for i in range(5):
                 time.sleep(2)
-                # execute_str = ''
-                # if execute.readlines() != []:
-                #     execute_str = execute.readlines()[0]
-                # print(execute_str)
                 execute_str = execute.read()
-                print(execute_str)
                 if 'file changed' in execute_str or 'files changed' in execute_str:
                     messagebox.showinfo(title='更新成功', message='更新成功，请重新启动')
                     self.window.destroy()
@@ -253,13 +238,7 @@ class Main(object):
     @staticmethod
     def show_update():
 
-        # v2.12.02.01
-        message = '版本 v2.12.02.01\n更新内容:\n'
-        message += '''- 新增若干功能
-    1. 新增清除缓存时，显示实际清除缓存的内存 
-    2. 新增 download 按钮，可以随时下载 all_report '''
-        # v2.12.16.01
-        message = '版本 v2.12.16.01\n更新内容:\n'
+        message = '版本 V1.0\n更新内容:\n'
         message += '''- 新增若干功能
     1. 新增清除缓存时，显示实际清除缓存的内存 
     2. 新增 download 按钮，可以随时下载 all_report '''
@@ -269,9 +248,8 @@ class Main(object):
         )
 
     def run(self):
-        self.window.title(f'♥ Only For JJ ♥ : version: {self.version}')
+        self.window.title(f'AxleHireTools : version: {self.version}')
         self.window.geometry('850x450')
-        # self.wrong_meself.ssage = StringVar()
 
         # label ending
         self.select_box = ttk.Combobox(
@@ -279,11 +257,11 @@ class Main(object):
             textvariable=self.ending_show
         )
         self.select_box.place(x=100, y=100)
-        self.select_box['values'] = ['周三', '周四']
+        self.select_box['values'] = ['智能分析', '普通分析']
         self.select_box.bind("<<ComboboxSelected>>", self._get_ending)
 
         # label boss2me
-        Label(self.window, text="boss2me file:").place(x=100, y=150)
+        Label(self.window, text="original file:").place(x=100, y=150)
         Entry(self.window, textvariable=self.boss2me_path, width='60').place(x=220, y=150)
         Button(self.window, text="select", command=self._get_boss2me, width='10').place(x=680, y=150)
 

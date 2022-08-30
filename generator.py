@@ -2,9 +2,12 @@
     填完数字之后，传回来加数字的 csv，点击生成，出结果
 """
 import warnings
+import pandas as pd
+
 from tkinter import Toplevel
 
-import pandas as pd
+
+warnings.filterwarnings('ignore')
 
 
 class Generator(object):
@@ -23,7 +26,6 @@ class Generator(object):
         # 2. 遍历 res_df
         for idx, row in res_df.iterrows():
             res_df.iloc[idx: idx + 1, :] = self.parse_rows(res_df.iloc[idx: idx + 1, :])
-            # print(self.parse_rows(res_df.iloc[idx: idx + 1, :]))
             print(f'\rwrite {idx} rows', end='')
         return res_df
 
@@ -69,7 +71,6 @@ class Generator(object):
     def copy_rows(self, data_frame_row, index):
         pd.set_option("display.max_columns", 50)
 
-        # print(data_frame_row, 'index', index)
         def nan_to_none(x):
             if str(x) == 'nan' or pd.isna(x):
                 return ''
@@ -89,7 +90,6 @@ class Generator(object):
 
         # 如果不是空的，加一个 / 再将内容附着上
         else:
-            # print('不是空的')
             data_frame_row['POD Valid?'] = [nan_to_none(self.reason_code.loc[index, 'POD'])]
             data_frame_row['POD Quality'] = [nan_to_none(self.reason_code.loc[index, 'POD Qaulity'])]
             if index == 122 or index == 123:
@@ -106,25 +106,4 @@ class Generator(object):
                     index, 'Delivery Comments']]
             data_frame_row['AH Assessment'] = [
                 str(data_frame_row['AH Assessment'].values[0]) + '/' + self.reason_code.loc[index, 'AH Assignment']]
-            # print('附着进去了')
             return data_frame_row
-
-
-def run(files, dis_files):
-    generator = Generator()
-    pd.set_option('display.max_columns', 50)
-    # print(generator.reason_code.iloc[122:123, :])
-    # print(generator.reason_code.iloc[123:124, :])
-    df = generator.get_final(
-        csv_file=files
-    )
-    # print(df)
-    df.to_csv(dis_files, index=False)
-
-
-if __name__ == '__main__':
-    warnings.filterwarnings('ignore')
-    run(
-        files=r"D:\Files\work\2022-08-24 HF\damnson.csv",
-        dis_files=r"D:\Files\work\2022-08-24 HF\papa.csv"
-    )

@@ -4,6 +4,8 @@ import time
 import requests
 import json
 import pandas as pd
+
+from const import USER_PSW, USER_NAME
 from requests_ntlm import HttpNtlmAuth
 from tkinter import Toplevel, Label, Entry, Button, StringVar, messagebox
 
@@ -20,20 +22,16 @@ class DownLoader(object):
             'cookie': r'fp=1a39e1225ea764ca9f2abf599fafba34; xtoken="dE9DbW1wYkZDI/B28g5MkirtzwljFDty7THWI75r/mVq4do8Y'
                       r'KOJBeUtONSQ1d3L1Yb5JCAEZPTk\012FFj7LXpbKjSaV71j1S6I9zjtTLurIi1ddgqe+xsIRU84cjg0Sktu\012"'
         }
-        self.user_name = 'yanxia.ji'
-        self.password = 'Axl12345'
+        self.user_name = USER_NAME
+        self.password = USER_PSW
 
     def download_from_url(self, url, file_name):
-        print(url)
-        # url = 'https://dataorch.beta.axlehire.com/reports/uploaded/8d38816a-98f4-4461-9d4b-1f79cd360e34/download'
         self.make_dir('all_report_history')
         session = requests.Session()
         time.sleep(5)
         response = session.get(url=url, headers=self.header)
-        # response = session.get(url=url, headers=self.header)
         if response.status_code == 200:
             json_data = json.loads(response.text)
-            print('json_data', json_data)
             response = session.get(url=url+'/download', headers=self.header)
             if 'url' in json_data.keys():
                 with open(file_name, 'wb') as fp:
@@ -176,8 +174,8 @@ class DownLoader(object):
         json_data = json.dumps(data_dict)
 
         session = requests.Session()
-        user = 'yanxia.ji'
-        password = 'Axl12345'
+        user = USER_NAME
+        password = USER_PSW
         response = session.post(url=url, headers=header, data=json_data, auth=HttpNtlmAuth(user, password))
 
         result_dict = json.loads(response.text)
@@ -195,19 +193,3 @@ class DownLoader(object):
         path = folder_path + '/all.csv'
         messagebox.showinfo(title='成功', message=f'输出路径为: {path}')
         return res_df
-
-
-if __name__ == '__main__':
-    downloader = DownLoader()
-    # downloader.get_csv_from_date(client_id='159', date='2021-10-19')2021-10-19
-    print(downloader.get_dict_from_tracking_code('aejnmmw7pnsqxzpk'))
-    # downloader.get_csv_from_date(
-    #     client_id=['49'],
-    #     date='2021-11-17',
-    #     file_name='ff.csv'
-    # )
-    # downloader.download_from_url(url='https://dataorch.beta.axlehire.com/reports/uploaded/f705aa7f-6b32-4868-9892-5fb9ab6e138d', file_name='ff')
-    # st = '2021/11/17'
-    # s = str(int(datetime.datetime.strptime(st, '%Y/%m/%d').timestamp()))
-    # print(s)
-    downloader.run()

@@ -1,12 +1,15 @@
 import json
 import os
 import shutil
+import uuid
+
 import pandas as pd
 import utils.analyser_utils as analyser_utils
 import requests
 import cv2.cv2 as cv2
 import datetime
 
+from const import USER_NAME, USER_PSW
 from tkinter import ttk, Button, messagebox, StringVar, Label, Entry, Toplevel
 from requests_ntlm import HttpNtlmAuth
 
@@ -29,7 +32,7 @@ class Analyser(object):
         self.mission_length = len(self.data_frame['Tracking Code'])
 
     def initialize_param_dict(self):
-        # 周四
+        # 普通分析
         if self.day == '4':
             param_dict = {'Reason for Complaint': StringVar(), 'Details of Complaint': StringVar(),
                           'Tracking Code': StringVar(), 'Drop off status': StringVar(),
@@ -42,7 +45,7 @@ class Analyser(object):
                           'Drop off date 减 Pickup Date': StringVar(), 'Drop off date': StringVar(),
                           'Drop off time': StringVar(), 'Drop off remark': StringVar()}
             return param_dict
-        # 周三
+        # 智能分析
         elif self.day == '3':
             param_dict = {'Tracking Code': StringVar(), 'Drop off status': StringVar(),
                           'Earliest Dropoff Time': StringVar(), 'Latest Dropoff Time': StringVar(),
@@ -86,8 +89,8 @@ class Analyser(object):
         再此创建一个新的 tkinter 界面，并提供两个按钮，上一页，下一页
         上一页 依然运行 run 函数，只不过 self.index + 1
         """
-        # 一堆逻辑 列出当前 index 的 dataframe，周四
-        # 周四
+        # 一堆逻辑 列出当前 index 的 dataframe，普通分析
+        # 普通分析
         if self.day == '4':
             self.window = Toplevel(master=self.root)
             self.param_dict = self.initialize_param_dict()
@@ -174,7 +177,7 @@ class Analyser(object):
 
             # 设置一个框，用于填对应的序号
             self.answer = StringVar()
-            Label(self.window, text="此条记录的问题，对应的 JJ 序号:").place(x=500, y=100)
+            Label(self.window, text="此条记录的问题，对应的序号:").place(x=500, y=100)
             Entry(self.window, width='5', textvariable=self.answer).place(x=720, y=100)
 
             # 显示 tracking code
@@ -207,7 +210,7 @@ class Analyser(object):
             # 一堆逻辑 显示出图片和详细地址文字
             self.window.mainloop()
 
-        # 周三
+        # 智能分析
         elif self.day == '3':
             self.window = Toplevel(master=self.root)
             self.param_dict = self.initialize_param_dict()
@@ -290,7 +293,7 @@ class Analyser(object):
 
             # 设置一个框，用于填对应的序号
             self.answer = StringVar()
-            Label(self.window, text="此条记录的问题，对应的 JJ 序号:").place(x=500, y=100)
+            Label(self.window, text="此条记录的问题，对应的序号:").place(x=500, y=100)
             entry = Entry(self.window, width='5', textvariable=self.answer).place(x=720, y=100)
 
             # 显示 tracking code
@@ -507,8 +510,8 @@ class Analyser(object):
         json_data = json.dumps(data_dict)
 
         session = requests.Session()
-        user = 'yanxia.ji'
-        password = 'Axl12345'
+        user = USER_NAME
+        password = USER_PSW
         response = session.post(url=url, headers=header, data=json_data, auth=HttpNtlmAuth(user, password))
 
         result_dict = json.loads(response.text)
@@ -519,17 +522,8 @@ class Analyser(object):
         result_dict = self.get_dict_from_tracking_code(
             tracking_code=self.data_frame.loc[self.index, 'Tracking Code']
         )
-        # data_dict = {'size': 15, 'q': self.data_frame.loc[self.index, 'Tracking Code'],
-        #              'filters': {}, 'sorts': ['-dropoff_earliest_ts']}
-        # json_data = json.dumps(data_dict)
 
         session = requests.Session()
-        # user = 'yanxia.ji'
-        # password = 'Axl12345'
-        # response = session.post(url=self.url, headers=self.header, data=json_data, auth=HttpNtlmAuth(user, password))
-        #
-        # result_dict = json.loads(response.text)
-        # print(result_dict)
 
         # 如果存在照片，就显示
         if result_dict['results'][0]['pod']['images'] != []:
@@ -622,10 +616,7 @@ class Analyser(object):
         return round(file_size, 2)
 
     def confirm(self, event=None):
-        print(self.answer)
-        print(self.answer.get())
         answer_index = self.answer.get()
-        print('answer_index', int(answer_index))
         analyser_utils.copy_reason(
             data_frame_row=self.data_frame.iloc[self.index: self.index + 1, :],
             index=int(answer_index)
@@ -640,7 +631,7 @@ class Analyser(object):
 
         res_df = self.write_in()
 
-        # 周三的需要改动列名
+        # 智能分析的需要改动列名
         if self.day == '3':
             res_df.rename(columns={'AH Assessment': 'HF Reason Code'}, inplace=True)
         # 这里 res_df 中的五列将带 x 的写回去，并 drop 掉
@@ -674,14 +665,19 @@ class Analyser(object):
 
 
 def process_image(img):
+    """
+    此处使用改进的 REAL-ESRGAN 算法，增强两倍画质，用于查看高清大图
+    :param img:
+    :return:
+    """
     min_side = 768
     size = img.shape
     h, w = size[0], size[1]
-    # 长边缩放为min_side
+    # 长边缩放为 min_side
     scale = max(w, h) / float(min_side)
     new_w, new_h = int(w / scale), int(h / scale)
     resize_img = cv2.resize(img, (new_w, new_h))
-    # 填充至min_side * min_side
+    # 填充至 min_side * min_side
     if new_w % 2 != 0 and new_h % 2 == 0:
         top, bottom, left, right = (min_side - new_h) / 2, (min_side - new_h) / 2, (min_side - new_w) / 2 + 1, (
                     min_side - new_w) / 2
@@ -696,7 +692,54 @@ def process_image(img):
                     min_side - new_w) / 2
     pad_img = cv2.copyMakeBorder(resize_img, int(top), int(bottom), int(left), int(right), cv2.BORDER_CONSTANT,
                                  value=[0, 0, 0])  # 从图像边界向上,下,左,右扩的像素数目
-    return pad_img
+    u_id = uuid.uuid4()
+
+    try:
+        cv2.imwrite(f'cache_imgs/{u_id}.png', pad_img)
+    except:
+        raise "图片写入发生错误"
+
+    out_path = os.path.join('reuslt', str(u_id) + '_out.png')
+    run_cmd(
+        cmd=f'python inference_realesrgan.py -n RealESRGAN_x4plus -i cache_imgs/'
+    )
+
+    img = cv2.imread(out_path)
+    min_side = 768
+    size = img.shape
+    h, w = size[0], size[1]
+    # 长边缩放为 min_side
+    scale = max(w, h) / float(min_side)
+    new_w, new_h = int(w / scale), int(h / scale)
+    resize_img = cv2.resize(img, (new_w, new_h))
+    # 填充至 min_side * min_side
+    if new_w % 2 != 0 and new_h % 2 == 0:
+        top, bottom, left, right = (min_side - new_h) / 2, (min_side - new_h) / 2, (min_side - new_w) / 2 + 1, (
+                min_side - new_w) / 2
+    elif new_h % 2 != 0 and new_w % 2 == 0:
+        top, bottom, left, right = (min_side - new_h) / 2 + 1, (min_side - new_h) / 2, (min_side - new_w) / 2, (
+                min_side - new_w) / 2
+    elif new_h % 2 == 0 and new_w % 2 == 0:
+        top, bottom, left, right = (min_side - new_h) / 2, (min_side - new_h) / 2, (min_side - new_w) / 2, (
+                min_side - new_w) / 2
+    else:
+        top, bottom, left, right = (min_side - new_h) / 2 + 1, (min_side - new_h) / 2, (min_side - new_w) / 2 + 1, (
+                min_side - new_w) / 2
+    upscale_img = cv2.copyMakeBorder(resize_img, int(top), int(bottom), int(left), int(right), cv2.BORDER_CONSTANT,
+                                 value=[0, 0, 0])
+    return upscale_img
+
+
+def run_cmd(cmd):
+    """
+    运行命令并返回返回值
+    :param cmd: 命令
+    :return: 命令输出
+    """
+    var = os.popen(cmd)
+    result = var.read()
+    var.close()
+    return result
 
 
 class Thursday(object):
@@ -734,8 +777,6 @@ class Wednesday(object):
             temp = analyser_utils.change_Scheduled_Delivery_Date(res_data.iloc[index: index + 1, :])
             # 填入 week √
             temp = analyser_utils.get_week_num(temp)
-            # 修改时区
-            # temp = analyser_utils.data_frame_row_time_change(temp)
             # 分析 status
             res_data.iloc[index: index + 1, :] = analyser_utils.get_status(temp, day='3', policy=self.policy)
             result = pd.concat([result, temp])

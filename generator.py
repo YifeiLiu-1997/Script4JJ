@@ -3,7 +3,9 @@
 """
 import warnings
 import pandas as pd
+import datetime
 
+from utils.analyser import Wednesday, Thursday
 from tkinter import Toplevel
 
 
@@ -18,6 +20,26 @@ class Generator(object):
 
     def options(self):
         pass
+
+    def get_first_by_already_vlookup_files(self, already_file_path, policy, save_path):
+        # 列名先改一下
+        already_df = pd.read_csv(already_file_path)
+        already_df.rename(columns={'Drop off Time': 'Drop off time', 'Earliest Dropoff Date': 'Scheduled Delivery Date'}, inplace=True)
+
+        wednesday = Wednesday(already_df, policy=policy)
+        result_df = wednesday.analyse()
+
+        # 列名先改回来
+        result_df.rename(columns={'Drop off time': 'Drop off Time', 'Scheduled Delivery Date': 'Earliest Dropoff Date'}, inplace=True)
+
+        # 生成 csv
+        res_df = result_df.copy()
+        try:
+            res_df = res_df.drop(columns=['Week#', 'Updated Reason Code'])
+        except BaseException:
+            pass
+        date_time = datetime.datetime.now().strftime('%Y-%m-%d %H-%M-%S')
+        res_df.to_csv(str(save_path) + '/HF first' + date_time + '.csv', index=False)
 
     def get_final(self, csv_file):
         # 1. 读入传入的 csv
@@ -34,9 +56,8 @@ class Generator(object):
         if pd.isna(data_frame_rows['Answer Number'].values[0]):
             return data_frame_rows
 
-        number = int(data_frame_rows['Answer Number'].values[0]) \
-            if type(data_frame_rows['Answer Number'].values[0]) == 'float' else data_frame_rows['Answer Number'].values[0]
-
+        number = int(data_frame_rows['Answer Number'].values[0]) if not isinstance(data_frame_rows['Answer Number'].values[0], str) else data_frame_rows['Answer Number'].values[0]
+        print(type(number))
         # 不是数字，一定是 14 15 apt 这种形式
         if not str(number).isnumeric():
             answer_list = str(number).split(' ')
@@ -107,3 +128,14 @@ class Generator(object):
             data_frame_row['AH Assessment'] = [
                 str(data_frame_row['AH Assessment'].values[0]) + '/' + self.reason_code.loc[index, 'AH Assignment']]
             return data_frame_row
+
+
+if __name__ == '__main__':
+    g = Generator()
+    # g.get_final(csv_file=r"D:\Files\work\2022-11-10 DOG\dog 44 - 工作表2.csv").\
+    #     to_csv(r"D:\Files\work\2022-11-10 DOG\dog.csv", index=False)
+    g.get_first_by_already_vlookup_files(
+        already_file_path=r"D:\Files\work\2022-11-16 F75\Axle_errors_F75 W45 - Axle_errors_non-otp_W45.csv",
+        policy=30,
+        save_path=r"D:\Files\work\2022-11-16 F75"
+    )

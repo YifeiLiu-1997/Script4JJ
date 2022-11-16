@@ -137,7 +137,7 @@ class Main(object):
         structured_df = None
         if 'wednesday' in self.ending_path.get().lower():
             structured_df = preprocessing_data(self.ending_df, self.boss2me_df, self.all_report_df, day='3')
-            structured_df = structured_df.rename(columns={'delivery_date': 'Scheduled Delivery Date'})
+            structured_df = structured_df.rename(columns={'Delivery Date': 'Scheduled Delivery Date'})
         elif 'thursday' in self.ending_path.get().lower():
             structured_df = preprocessing_data(self.ending_df, self.boss2me_df, self.all_report_df, day='4')
         else:

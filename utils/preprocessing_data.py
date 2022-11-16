@@ -63,7 +63,7 @@ def preprocessing_data(ending_df, boss2me_df, all_report_df, day):
 
         # 3. initialize res_data
         columns_list = list(big_sheet.columns)
-        columns_list.append('delivery_date')
+        columns_list.append('Delivery Date')
         columns_list.append('Earliest Dropoff Time')
         columns_list.append('Latest Dropoff Time')
         columns_list.append('Earliest Dropoff Date')
@@ -110,7 +110,7 @@ def preprocessing_data(ending_df, boss2me_df, all_report_df, day):
 
         # 6. 将 res_data 的标题重置为 ending 的标题
         columns_list = list(big_sheet.columns)
-        columns_list.append('delivery_date')
+        columns_list.append('Delivery Date')
         columns_list.append('Earliest Dropoff Time')
         columns_list.append('Latest Dropoff Time')
         columns_list.append('Earliest Dropoff Date')

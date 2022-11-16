@@ -242,8 +242,12 @@ def get_pickup_and_delivery_status(data_frame_row, day, policy):
 def get_status(data_frame_row, day, policy):
     # 判断 shipment status 完了
     if 'GEOCODED'.lower() in str(data_frame_row['Shipment status'].values[0]).lower():
-        # 这里还要继续分析，但是比较复杂，不过多写了
-        data_frame_row = copy_reason(data_frame_row, 29)
+        if data_frame_row['Inbound status'].values[0] is None:
+            data_frame_row = copy_reason(data_frame_row, 27)
+        elif 'missing'.lower() in str(data_frame_row['Inbound status'].values[0]).lower():
+            data_frame_row = copy_reason(data_frame_row, 25)
+        else:
+            data_frame_row = copy_reason(data_frame_row, 29)
         return data_frame_row
     if 'CANCELLED_BEFORE_PICKUP'.lower() in str(data_frame_row['Shipment status'].values[0]).lower():
         data_frame_row = copy_reason(data_frame_row, 20)
@@ -338,9 +342,9 @@ def get_status(data_frame_row, day, policy):
                 data_frame_row = copy_reason(data_frame_row, 51)
                 return data_frame_row
             # ok
-            if 'missing'.lower() in data_frame_row['Drop off remark'].values[0].lower():
-                data_frame_row = copy_reason(data_frame_row, 52)
-                return data_frame_row
+            # if 'missing'.lower() in data_frame_row['Drop off remark'].values[0].lower():
+            #     data_frame_row = copy_reason(data_frame_row, 52)
+            #     return data_frame_row
             # ok
             if 'damaged'.lower() in data_frame_row['Drop off remark'].values[0].lower():
                 data_frame_row = copy_reason(data_frame_row, 46)
@@ -388,6 +392,31 @@ def get_status(data_frame_row, day, policy):
             # ok
             if 'refused'.lower() in data_frame_row['Drop off remark'].values[0].lower():
                 data_frame_row = copy_reason(data_frame_row, 19)
+                return data_frame_row
+            # ok
+            if 'DROPOFF_NOT_OPEN'.lower() in data_frame_row['Drop off remark'].values[0].lower():
+                data_frame_row = copy_reason(data_frame_row, 14)
+                return data_frame_row
+            # ok
+            if 'Wrong address / unit #'.lower() in data_frame_row['Drop off remark'].values[0].lower():
+                data_frame_row = copy_reason(data_frame_row, 16)
+                return data_frame_row
+            # ok
+            if 'DROPOFF_MISSING_RECEIVER'.lower() in data_frame_row['Drop off remark'].values[0].lower():
+                data_frame_row = copy_reason(data_frame_row, 14)
+                return data_frame_row
+            # ok
+            if 'DROPOFF_NOT_FOUND'.lower() in data_frame_row['Drop off remark'].values[0].lower():
+                data_frame_row = copy_reason(data_frame_row, 16)
+                return data_frame_row
+            # ok
+            if 'Customer requested Redelivery'.lower() in data_frame_row['Drop off remark'].values[0].lower():
+                data_frame_row = copy_reason(data_frame_row, 14)
+                return data_frame_row
+            # ok
+            if 'RECEIVER_DECLINED_DELIVERY'.lower() in data_frame_row['Drop off remark'].values[0].lower():
+                data_frame_row = copy_reason(data_frame_row, 19)
+                return data_frame_row
 
     # 如果是 SUCCEEDED 状态
     if data_frame_row['Drop off status'].values[0] == 'SUCCEEDED':

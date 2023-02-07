@@ -57,7 +57,7 @@ class Generator(object):
             return data_frame_rows
 
         number = int(data_frame_rows['Answer Number'].values[0]) if not isinstance(data_frame_rows['Answer Number'].values[0], str) else data_frame_rows['Answer Number'].values[0]
-        print(type(number))
+        # print(type(number))
         # 不是数字，一定是 14 15 apt 这种形式
         if not str(number).isnumeric():
             answer_list = str(number).split(' ')
@@ -132,10 +132,10 @@ class Generator(object):
 
 if __name__ == '__main__':
     g = Generator()
-    # g.get_final(csv_file=r"D:\Files\work\2022-11-10 DOG\dog 44 - 工作表2.csv").\
-    #     to_csv(r"D:\Files\work\2022-11-10 DOG\dog.csv", index=False)
-    g.get_first_by_already_vlookup_files(
-        already_file_path=r"D:\Files\work\2022-11-16 F75\Axle_errors_F75 W45 - Axle_errors_non-otp_W45.csv",
-        policy=30,
-        save_path=r"D:\Files\work\2022-11-16 F75"
-    )
+    g.get_final(csv_file=r"D:\Files\work\2023-2-1 F75\we.csv").\
+        to_csv(r"D:\Files\work\2023-2-1 F75\are.csv", index=False)
+    # g.get_first_by_already_vlookup_files(
+    #     already_file_path=r"D:\Files\work\2023-1-25 HF\ll.csv",
+    #     policy=30,
+    #     save_path=r"D:\Files\work\2023-1-25 HF"
+    # )

@@ -112,7 +112,7 @@ class Main(object):
             for date, tracking_list in date_dict.items():
                 message += '未搜索到的 tracking_code 为: '
                 for tracking_code in tracking_list:
-                    message += tracking_code + '/'
+                    message += str(tracking_code) + '/'
                 break
 
             text.pack()

@@ -115,7 +115,14 @@ def preprocessing_data(ending_df, boss2me_df, all_report_df, day):
         columns_list.append('Latest Dropoff Time')
         columns_list.append('Earliest Dropoff Date')
         columns_list.append('Latest Dropoff Date')
-        res_data.columns = columns_list
+        print(len(columns_list), len(res_data.columns))
+        print(columns_list, res_data.columns)
+        # columns_list.append('Reason for Complaint')
+        try:
+            res_data.columns = columns_list
+        except ValueError:
+            columns_list.append('Reason for Complaint')
+            res_data.columns = columns_list
 
         return res_data
 

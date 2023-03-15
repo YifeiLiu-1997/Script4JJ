@@ -52,12 +52,12 @@ class Main(object):
         self.select_box = None
 
     def _get_ending(self, *args):
-        if self.select_box.get() == '智能分析':
+        if self.select_box.get() == 'HF F75':
             ending_path = os.getcwd() + '/utils/files/ending_wednesday.csv'
-            self.ending_show.set('智能分析')
+            self.ending_show.set('HF F75')
         else:
             ending_path = os.getcwd() + '/utils/files/ending_thursday.csv'
-            self.ending_show.set('普通分析')
+            self.ending_show.set('others')
 
         self.ending_path.set(ending_path)
         self.window.update()
@@ -137,7 +137,7 @@ class Main(object):
         structured_df = None
         if 'wednesday' in self.ending_path.get().lower():
             structured_df = preprocessing_data(self.ending_df, self.boss2me_df, self.all_report_df, day='3')
-            structured_df = structured_df.rename(columns={'Delivery Date': 'Scheduled Delivery Date'})
+            structured_df = structured_df.rename(columns={'DELIVERY_DATE': 'Scheduled Delivery Date'})
         elif 'thursday' in self.ending_path.get().lower():
             structured_df = preprocessing_data(self.ending_df, self.boss2me_df, self.all_report_df, day='4')
         else:
@@ -257,7 +257,7 @@ class Main(object):
             textvariable=self.ending_show
         )
         self.select_box.place(x=100, y=100)
-        self.select_box['values'] = ['智能分析', '普通分析']
+        self.select_box['values'] = ['others', 'HF F75']
         self.select_box.bind("<<ComboboxSelected>>", self._get_ending)
 
         # label boss2me

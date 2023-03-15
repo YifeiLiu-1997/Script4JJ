@@ -132,10 +132,11 @@ class Generator(object):
 
 if __name__ == '__main__':
     g = Generator()
-    g.get_final(csv_file=r"D:\Files\work\2023-2-1 F75\we.csv").\
-        to_csv(r"D:\Files\work\2023-2-1 F75\are.csv", index=False)
+    g.get_final(csv_file=r"D:\Files\work\2023-3-8 ALL\F75 FUCK.csv").\
+        to_csv(r"D:\Files\work\2023-3-8 ALL\F75 last"
+               r".csv", index=False)
     # g.get_first_by_already_vlookup_files(
-    #     already_file_path=r"D:\Files\work\2023-1-25 HF\ll.csv",
+    #     already_file_path=r"D:\Files\work\2023-3-1 HF\F75.csv",
     #     policy=30,
-    #     save_path=r"D:\Files\work\2023-1-25 HF"
+    #     save_path=r"D:\Files\work\2023-3-1 HF"
     # )

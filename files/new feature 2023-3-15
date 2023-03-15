@@ -1,0 +1,16 @@
+本周的HF和F75做法有一些改动。请按照以下方法做：
+1、Inbound阶段，先做inbound missing，inbound damaged 以及inbound是空着的，空着的就写package not received by AX那个code就行。
+2、以上三部分做完后，开始看received OK那些时间。需要与客户的delivery date时间进行对比，如果晚了的，需要在inbound comments那里写上inbound late for XX days 或者SDLAX地区的写上 AX line haul late for XX days。不管后面operation是什么情况，只要inbound late了，都要写上，不能空着。最后delivery comments那列也需要写上Inbound late for XX days, 不能只写“Inbound late”。
+3、然后看shipment status那一列，如果有cancelled before/after pickup或者GEOCODED的，可以先做好，以后就不用看了。
+4、然后开始看pickup阶段。
+1）pickup status “FAILED” ： 如果remark写的是cannot find，missing，cannot locate之类的，在pickup comments那里写“Pickup Missing”； 如果remark写的damaged，leaking之类的，pickup comments写“Pickup Damaged”； 如果remark写的 Missort或者看不出来是什么的，pickup comments写“Pickup Failed”. 如果pickup remark写的是“Received Damaged”，我们需要看Dropoff Reason和Remark那两列，如果Dropoff Reason是空的，Dropoff remark写的是received damaged，那后面就写not due to AX performance/Inbound Damaged的reason code就可以；如果Dropoff Reason写了“No Access Code”或者“Communication Issue”之类的，那就按我们做dropoff failed那些no access code或者cannot reach customer的方法做。
+2）pickup status "Ready" "Pending" 或者是空的，首先看inbound如果late了，那就不需要看history了，直接写Received Late。如果inbound 没有late，则需要我们一个一个看shipment history。 Pickup comments这列不能空着，如果没有可以用的remark或者reason，我们就写inbound ok but pickup failed或者pickup ok but delivery failed。这样我就能知道这种是history里没有显示什么信息了，我就不用再进去重新看了。不然空着的我每次都要进去重新看是不是有没贴的。
+3）最后看pickup succeeded那些的时间。如果有晚了的，不管dropoff是什么情况，只要pickup晚了都需要在comments那列表出来inbound ontime but outbound late for XX days. 晚了的不能空着。以后都不用看PIckup after 12PM了。
+4）注意：从这周开始，pickup late和dropoff late不能写not due to了，又换成以前的做法了。如果pickup late了，Issue那要改成“Operation”， delivery comments那里按pickup comments写Inound ontime but outbound late for XX day就可以，AH Assessment写“Pickup Late”就可以。
+5、然后开始看Dropoff阶段。
+1）Dropoff enroute, pending或者ready之类的，就按你们之前的做法就行，一般都是Delivery issue，pickup OK but delivery failed.
+2) Dropoff failed也是按照目前的做法就行；HF有一列客户给的说明，你们做的时候可以参考下，他们把客户有留言的都写在这里了。
+3）Dropoff suceeded的看时间的同pickup看时间一样，如果晚了的，写Delivery Issue，comments里面写pickup ok but delivery late for XX days, AH Assessment写Late
+4）看照片的时候主要注意看那些放在lobby, mail locker或者inside gate的那些，是不是客户有指定放在这些地方，也可以参考客户给的说明那一列。
+
+以上都做好后，请两位看下你们的列的顺序要跟上周的claim列的顺序保持一致，谢谢。

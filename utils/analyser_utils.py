@@ -280,8 +280,8 @@ def get_status_2023_3_15(data_frame_row, day, policy):
             # Not Due to AX performance | Inbound missing |	Received missing
             data_frame_row = copy_reason(data_frame_row, 25)
             return data_frame_row
-        else:
-            # Routing | Goecoded right but didn't route | Misroute
+        if 'RECEIVED_OK'.lower() in str(data_frame_row['Inbound status'].values[0]).lower():
+            # Not Due to AX performance | Inbound missing |	Received missing
             data_frame_row = copy_reason(data_frame_row, 29)
             return data_frame_row
     if 'CANCELLED_BEFORE_PICKUP'.lower() in str(data_frame_row['Shipment status'].values[0]).lower():
@@ -292,22 +292,26 @@ def get_status_2023_3_15(data_frame_row, day, policy):
         # Not Due to AX performance	| Out of delivery area	| Outside Service Area
         data_frame_row = copy_reason(data_frame_row, 22)
         return data_frame_row
+    if 'UNSERVICEABLE'.lower() in str(data_frame_row['Shipment status'].values[0]).lower():
+        # Not Due to AX performance	| Out of delivery area	| Outside Service Area
+        data_frame_row = copy_reason(data_frame_row, 22)
+        return data_frame_row
 
     # 1. Inbound阶段，先做inbound missing，inbound damaged 以及inbound是空着的，空着的就写package not received by AX那个code就行。
     if 'MISSING'.lower() in str(data_frame_row['Inbound status'].values[0]).lower():
         # Not Due to AX performance | Inbound missing |	Received missing
         data_frame_row = copy_reason(data_frame_row, 25)
         data_frame_row['Inbound Comments'] = ['Inbound Missing']
-        return data_frame_row
+
     if 'RECEIVED_DAMAGED'.lower() in str(data_frame_row['Inbound status'].values[0]).lower():
         # Not Due to AX performance | Inbound damage | Received damaged
         data_frame_row = copy_reason(data_frame_row, 26)
         data_frame_row['Inbound Comments'] = ['Inbound Damaged']
-        return data_frame_row
+
     if pd.isna(data_frame_row['Inbound status'].values[0]):
         # Not Due to AX performance | Package not received by AxleHire | Package not received by AxleHire
         data_frame_row = copy_reason(data_frame_row, 27)
-        return data_frame_row
+
 
     # 2. 以上三部分做完后，开始看received OK那些时间。需要与客户的delivery date时间进行对比，如果晚了的，
     # 需要在inbound comments那里写上inbound late for XX days 或者 SDLAX 地区的写上 AX line haul late for XX days。
@@ -431,9 +435,7 @@ def get_status_2023_3_15(data_frame_row, day, policy):
                 return data_frame_row
 
         # 如果 inbound 没 late，写入提示
-        data_frame_row['Pickup Comments'] = ['Inbound 没 late，需要看shipment history，没有可以用的remark或者reason，'
-                                             '我们就写inbound ok but pickup failed或者pickup ok but delivery failed。'
-                                             '这样我就能知道这种是history里没有显示什么信息了']
+        data_frame_row['Pickup Comments'] = ['需要看shipment history']
 
     # 3）最后看pickup succeeded那些的时间。如果有晚了的，不管dropoff是什么情况，
     # 只要pickup晚了都需要在comments那列表出来inbound ontime but outbound late for XX days. 晚了的不能空着。以后都不用看PIckup after 12PM了。
@@ -449,6 +451,8 @@ def get_status_2023_3_15(data_frame_row, day, policy):
                 # Operation	| Inbound ontime but outbound late for 1 day | Missort
                 data_frame_row = copy_reason(data_frame_row, 41, rewrite=True)
                 data_frame_row['Pickup Comments'] = [f'Inbound ontime but outbound late for {pickup_diff} day{tails}']
+                data_frame_row['Delivery Comments'] = [
+                    f'Inbound ontime but outbound late for {pickup_diff} day{tails}']
                 data_frame_row['AH Assessment'] = [f'Pickup Late']
 
     # 4）注意：从这周开始，pickup late和dropoff late不能写not due to了，又换成以前的做法了。
@@ -460,44 +464,31 @@ def get_status_2023_3_15(data_frame_row, day, policy):
     if data_frame_row['Drop off status'].values[0] == 'DISCARDED':
         if "Damaged".lower() in str(data_frame_row['Drop off remark'].values[0]).lower():
             data_frame_row = copy_reason(data_frame_row, 34, rewrite=True)
-            data_frame_row['Pickup Comments'] = ['Inbound ok but pickup damaged']
-            return data_frame_row
         if 'RECEIVED_DAMAGED'.lower() in str(data_frame_row['Drop off remark'].values[0]).lower():
             data_frame_row = copy_reason(data_frame_row, 26, rewrite=True)
-            return data_frame_row
         if 'discard'.lower() in str(data_frame_row['Drop off remark'].values[0]).lower():
             data_frame_row = copy_reason(data_frame_row, 37, rewrite=True)
-            data_frame_row['Pickup Comments'] = ['Inbound ok but pickup failed']
-            return data_frame_row
         if "Missing".lower() in str(data_frame_row['Drop off remark'].values[0]).lower():
             data_frame_row = copy_reason(data_frame_row, 35, rewrite=True)
-            data_frame_row['Pickup Comments'] = ['Inbound ok but pickup failed']
-            return data_frame_row
         if pd.isna(data_frame_row['Drop off remark'].values[0]):
             data_frame_row = copy_reason(data_frame_row, 52, rewrite=True)
-            return data_frame_row
 
     if data_frame_row['Drop off status'].values[0] is None:
         if 'missing by inbound' in str(data_frame_row['Drop off remark'].values[0]).lower():
             data_frame_row = copy_reason(data_frame_row, 25, rewrite=True)
-            return data_frame_row
         if 'missing by outbound' in str(data_frame_row['Drop off remark'].values[0]).lower():
             data_frame_row = copy_reason(data_frame_row, 35, rewrite=True)
-            return data_frame_row
 
     if data_frame_row['Drop off status'].values[0] == 'EN_ROUTE':
         if data_frame_row['Pickup Status'].values[0] == 'SUCCEEDED':
             data_frame_row = copy_reason(data_frame_row, 52, rewrite=True)
-            return data_frame_row
 
     if data_frame_row['Drop off status'].values[0] == 'PENDING':
         if data_frame_row['Pickup Status'].values[0] == 'SUCCEEDED':
             data_frame_row = copy_reason(data_frame_row, 52, rewrite=True)
-            return data_frame_row
         if data_frame_row['Pickup Status'].values[0] == 'FAILED' or \
                 data_frame_row['Pickup Status'].values[0] == 'PENDING':
             data_frame_row = copy_reason(data_frame_row, 31, rewrite=True)
-            return data_frame_row
 
     # 2) Dropoff failed也是按照目前的做法就行；HF有一列客户给的说明，你们做的时候可以参考下，他们把客户有留言的都写在这里了。
     if data_frame_row['Drop off status'].values[0] == 'FAILED':
@@ -604,6 +595,8 @@ def get_status_2023_3_15(data_frame_row, day, policy):
                     data_frame_row = copy_reason(data_frame_row, 41, rewrite=True)
                     data_frame_row['Pickup Comments'] = [
                         f'Inbound ontime but outbound late for {pickup_diff} day{tails}']
+                    data_frame_row['Delivery Comments'] = [
+                        f'Inbound ontime but outbound late for {pickup_diff} day{tails}']
                     data_frame_row['AH Assessment'] = [f'Pickup Late']
 
         # drop 在当天
@@ -617,6 +610,7 @@ def get_status_2023_3_15(data_frame_row, day, policy):
                     data_frame_row = copy_reason(data_frame_row, 41, rewrite=True)
                     data_frame_row['Pickup Comments'] = [
                         f'Inbound ontime but outbound late for {pickup_diff} day{tails}']
+
                     data_frame_row['AH Assessment'] = [f'Pickup Late']
 
                     data_frame_row = copy_reason(data_frame_row, 118, rewrite=True)

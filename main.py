@@ -238,10 +238,8 @@ class Main(object):
     @staticmethod
     def show_update():
 
-        message = '版本 V1.0\n更新内容:\n'
-        message += '''- 新增若干功能
-    1. 新增清除缓存时，显示实际清除缓存的内存 
-    2. 新增 download 按钮，可以随时下载 all_report '''
+        message = '版本 V2.0\n更新内容:\n'
+        message += '''根据最新的2023.3.15版本开发'''
         messagebox.showinfo(
             title='更新内容',
             message=message
@@ -257,7 +255,7 @@ class Main(object):
             textvariable=self.ending_show
         )
         self.select_box.place(x=100, y=100)
-        self.select_box['values'] = ['others', 'HF F75']
+        self.select_box['values'] = ['HF F75', 'others']
         self.select_box.bind("<<ComboboxSelected>>", self._get_ending)
 
         # label boss2me

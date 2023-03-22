@@ -105,6 +105,10 @@ class Generator(object):
             data_frame_row['POD Quality'] = [nan_to_none(self.reason_code.loc[index, 'POD Qaulity'])]
             data_frame_row['Issue Category'] = [self.reason_code.loc[index, 'Issue Category']]
             data_frame_row['Delivery Comments'] = [self.reason_code.loc[index, 'Delivery Comments']]
+
+            if data_frame_row['Delivery Comments'].values == ['Delivery Cannot Be Confirmed']:
+                data_frame_row['Delivery Comments'] = ['POD quality issue']
+
             data_frame_row['AH Assessment'] = [self.reason_code.loc[index, 'AH Assignment']]
 
             return data_frame_row
@@ -132,9 +136,8 @@ class Generator(object):
 
 if __name__ == '__main__':
     g = Generator()
-    g.get_final(csv_file=r"D:\Files\work\2023-3-8 ALL\F75 FUCK.csv").\
-        to_csv(r"D:\Files\work\2023-3-8 ALL\F75 last"
-               r".csv", index=False)
+    g.get_final(csv_file=r"D:\Files\work\2023-3-22 HF\HF W11 - HF.csv").\
+        to_csv(r"D:\Files\work\2023-3-22 HF\HH.csv", index=False)
     # g.get_first_by_already_vlookup_files(
     #     already_file_path=r"D:\Files\work\2023-3-1 HF\F75.csv",
     #     policy=30,

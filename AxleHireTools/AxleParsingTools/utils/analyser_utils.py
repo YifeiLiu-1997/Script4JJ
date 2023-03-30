@@ -616,10 +616,9 @@ def get_status_2023_3_15(data_frame_row, day, policy):
                     data_frame_row = copy_reason(data_frame_row, 118, rewrite=True)
                     data_frame_row['Delivery Comments'] = [f'pickup late for {pickup_diff} day{tails} '
                                                            f'and delivery late for same day']
-                else:
-                    # 如果 drop 当天晚了， pickup 没晚
-                    data_frame_row = copy_reason(data_frame_row, 118, rewrite=True)
-                    data_frame_row['Delivery Comments'] = [f'pickup ok but delivery late for same day']
+                # 如果 drop 当天晚了， pickup 没晚
+                data_frame_row = copy_reason(data_frame_row, 118, rewrite=True)
+                data_frame_row['Delivery Comments'] = [f'pickup ok but delivery late for same day']
 
         # drop 晚于一天
         if delivery_diff > 0:
@@ -639,10 +638,9 @@ def get_status_2023_3_15(data_frame_row, day, policy):
                                                            f'and delivery late for same day']
                     return data_frame_row
                 # 如果 drop 配送时间晚了， pickup 没晚
-                else:
-                    data_frame_row = copy_reason(data_frame_row, 118, rewrite=True)
-                    data_frame_row['Delivery Comments'] = [f'pickup ok but delivery late for same day']
-                    return data_frame_row
+                data_frame_row = copy_reason(data_frame_row, 118, rewrite=True)
+                data_frame_row['Delivery Comments'] = [f'pickup ok but delivery late for same day']
+                return data_frame_row
             # drop 只日期晚了
             else:
                 delivery_tails = '' if delivery_diff == 1 else 's'

@@ -194,6 +194,7 @@ class Main(object):
             except BaseException:
                 pass
             date_time = datetime.datetime.now().strftime('%Y-%m-%d %H-%M-%S')
+            res_df.drop_duplicates(['Tracking Code'], inplace=True)
             res_df.to_csv(str(self.save_folder_path.get()) + '/HF first' + date_time + '.csv', index=False)
 
             analyser = Analyser(self.window, self.result_df, self.save_folder_path.get(), '3')

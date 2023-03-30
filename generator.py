@@ -136,8 +136,8 @@ class Generator(object):
 
 if __name__ == '__main__':
     g = Generator()
-    g.get_final(csv_file=r"D:\Files\work\2023-3-22 HF\HF W11 - HF.csv").\
-        to_csv(r"D:\Files\work\2023-3-22 HF\HH.csv", index=False)
+    g.get_final(csv_file=r"D:\Files\work\2023-3-29 HF\DG.csv").\
+        to_csv(r"D:\Files\work\2023-3-29 HF\ZL.csv", index=False)
     # g.get_first_by_already_vlookup_files(
     #     already_file_path=r"D:\Files\work\2023-3-1 HF\F75.csv",
     #     policy=30,

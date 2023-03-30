@@ -846,6 +846,7 @@ def get_status(data_frame_row, day, policy):
             if 'RECEIVER_DECLINED_DELIVERY'.lower() in data_frame_row['Drop off remark'].values[0].lower():
                 data_frame_row = copy_reason(data_frame_row, 19)
                 return data_frame_row
+        return data_frame_row
 
     # 如果是 SUCCEEDED 状态
     if data_frame_row['Drop off status'].values[0] == 'SUCCEEDED':

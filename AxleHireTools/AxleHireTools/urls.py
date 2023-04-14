@@ -17,10 +17,13 @@ from django.contrib import admin
 from django.urls import path
 
 from AxleParsingTools import views
+from GPT import views as gpt_views
 
 urlpatterns = [
     # path('admin/', admin.site.urls),
     path('', views.axle_hire_index),
     path('parse', views.parse_data),
     path('download', views.download),
+    path('chat', gpt_views.gpt_index),
+    path('gen_response', gpt_views.gen_response)
 ]

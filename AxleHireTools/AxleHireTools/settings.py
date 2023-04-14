@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # Install APP
-    'AxleParsingTools'
+    'AxleParsingTools',
+    'GPT'
 ]
 
 MIDDLEWARE = [

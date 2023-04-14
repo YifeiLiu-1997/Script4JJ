@@ -44,15 +44,15 @@
                     <div class="layui-text">
                         {{ status }}</div>
                 </button>
-                {% if download == 'yes' %}
-                    <from action="download" method="get">
-                        <input type="button" value="下载">
-                    </from>
-                {% endif %}
+
             </div>
         </div>
     </form>
-
+    {% if download == 'yes' %}
+        <form action="/download" method="get">
+            <button type="submit" value="下载" class="layui-btn">下载结果</button>
+        </form>
+    {% endif %}
 </div>
 
 

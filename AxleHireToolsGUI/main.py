@@ -17,8 +17,10 @@
 import datetime
 import os
 import sys
+import threading
 import time
 import warnings
+from threading import Thread
 
 import pandas as pd
 import concat_csv
@@ -137,7 +139,7 @@ class Main(object):
         structured_df = None
         if 'wednesday' in self.ending_path.get().lower():
             structured_df = preprocessing_data(self.ending_df, self.boss2me_df, self.all_report_df, day='3')
-            structured_df = structured_df.rename(columns={'DELIVERY_DATE': 'Scheduled Delivery Date'})
+            structured_df = structured_df.rename(columns={'OTD earliest Dropoff Date': 'Scheduled Delivery Date'})
         elif 'thursday' in self.ending_path.get().lower():
             structured_df = preprocessing_data(self.ending_df, self.boss2me_df, self.all_report_df, day='4')
         else:
@@ -195,6 +197,16 @@ class Main(object):
                 pass
             date_time = datetime.datetime.now().strftime('%Y-%m-%d %H-%M-%S')
             res_df.drop_duplicates(['Tracking Code'], inplace=True)
+
+            # 2023-11-8 修改列名
+            # Scheduled Delivery Date: OTD earliest Dropoff Date
+            # Label: Shipment label
+            # 删除 Driver Name
+            # Courier: Courier name
+            res_df.rename(columns={'Scheduled Delivery Date': 'OTD earliest Dropoff Date',
+                                   'Label': 'Shipment label',
+                                   'Courier': 'Courier name'}, inplace=True)
+            res_df.drop(columns=['Driver Name'], inplace=True)
             res_df.to_csv(str(self.save_folder_path.get()) + '/HF first' + date_time + '.csv', index=False)
 
             analyser = Analyser(self.window, self.result_df, self.save_folder_path.get(), '3')
@@ -249,6 +261,7 @@ class Main(object):
     def run(self):
         self.window.title(f'AxleHireTools : version: {self.version}')
         self.window.geometry('850x450')
+
 
         # label ending
         self.select_box = ttk.Combobox(

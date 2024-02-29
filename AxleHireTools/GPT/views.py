@@ -27,3 +27,6 @@ def gen_response(request):
     print(response)
     return HttpResponse(response)
 
+
+if __name__ == '__main__':
+    gen_response()

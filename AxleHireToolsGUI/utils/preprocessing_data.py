@@ -56,6 +56,9 @@ def preprocessing_data(ending_df, boss2me_df, all_report_df, day):
         return res_data
 
     elif day == '3':
+        """
+        2023-11-1 all report 发生变化
+        """
         # 0. 获取文件
         big_sheet = ending_df
         boss2me = boss2me_df
@@ -63,10 +66,10 @@ def preprocessing_data(ending_df, boss2me_df, all_report_df, day):
 
         # 3. initialize res_data
         columns_list = list(big_sheet.columns)
-        columns_list.insert(0, 'Latest Dropoff Time')
-        columns_list.insert(0, 'Earliest Dropoff Time')
-        columns_list.insert(0, 'Latest Dropoff Date')
-        columns_list.insert(0, 'Earliest Dropoff Date')
+        columns_list.insert(0, 'Latest dropoff time')
+        columns_list.insert(0, 'Earliest dropoff time')
+        columns_list.insert(0, 'OTD latest dropoff date')
+        columns_list.insert(0, 'OTD earliest Dropoff Date')
         columns_list.append('DELIVERY_DATE')
 
         res_data = pd.DataFrame(columns=columns_list, dtype='object')
@@ -75,30 +78,41 @@ def preprocessing_data(ending_df, boss2me_df, all_report_df, day):
         # boss 的 tracking code 有多种可能 "tracking #" or "Tracking Number"
         # boss2me = change_title_name(boss2me, re.search(r'\'[Tt](racking |RACKING_)(#| Number| code| Code|CODE)\'',
         #                                                str(boss2me.columns)).group(0)[1:-1], "Tracking Code")
-        boss2me = boss2me.rename(columns={'TRACKING_CODE': "Tracking Code"})
+        boss2me = boss2me.rename(columns={'TRACKING_CODE': "Tracking code"})
+        print(boss2me.columns)
         # 2. 合并 boss 和 report 合并为 same
-        same = pd.merge(boss2me, report, how='left', on='Tracking Code')
+        same = pd.merge(boss2me, report, how='left', on='Tracking code')
 
         # 4. 将 res_data 的一些标题改为 same 的
         # ending 与 same 的不同除 Region Code --> Region, REgion Code --> Region
         # ending_wednesday 的 Drop off Time ending_thursday是 Drop off time --> Dropoff Time
         # res_data = change_title_name(res_data, re.search(r'\'[Tt](racking |RACKING_)(#| Number| code| Code|CODE)\'',
         #                                                  str(res_data.columns)).group(0)[1:-1], "Tracking Code")
-        res_data = res_data.rename(columns={'TRACKING_CODE': "Tracking Code"})
+        res_data = res_data.rename(columns={'Tracking Code': "Tracking code"})
         res_data = change_title_name(res_data, re.search(
             r'\'((Region Code)|(REgion Code)|(region Code)|(rEgion Code)|(Region code)|(REgion code))\'',
             str(res_data.columns)).group(0)[1:-1], "Region")
-        res_data = change_title_name(res_data, 'Assignment ID', 'Assignment Id')
+        # res_data = change_title_name(res_data, 'Assignment ID', 'Assignment Id')
         res_data = change_title_name(res_data,
                                      re.search(r'\'(Issue)|(Reason for Complaint)\'', str(res_data.columns)).group(0)[
                                      :-1], 'Reason for Complaint')
-        res_data = change_title_name(res_data, 'Inbound Scan Date (Linehaul)', 'Inbound Scan Date')
-        res_data = change_title_name(res_data, 'Pickup remark', 'Pickup Remark')
-        res_data = change_title_name(res_data, 'Drop off date', 'Dropoff Date')
+
+        res_data = change_title_name(res_data, 'Label', 'Shipment label')
+        res_data = change_title_name(res_data, 'Courier', 'Courier name')
+
+        res_data = change_title_name(res_data, 'Inbound Scan Date (Linehaul)', 'Inbound scan ts date')
+        res_data = change_title_name(res_data, 'Inbound Scan Time', 'Inbound scan ts time')
+        # res_data = change_title_name(res_data, 'Pickup remark', 'Pickup Remark')
+        res_data = change_title_name(res_data, 'Pickup Time', 'Pickup time')
+        res_data = change_title_name(res_data, 'Pickup Date', 'Pickup date')
+        res_data = change_title_name(res_data, 'Pickup Status', 'Pickup status')
+
+
+        res_data = change_title_name(res_data, 'Drop off date', 'Dropoff date')
         res_data = change_title_name(res_data, re.search(r'\'Drop off [Tt]ime\'',
-                                                         str(res_data.columns)).group(0)[1:-1], "Dropoff Time")
-        res_data = change_title_name(res_data, 'Drop off status', 'Dropoff Status')
-        res_data = change_title_name(res_data, 'Drop off remark', 'Dropoff Remark')
+                                                         str(res_data.columns)).group(0)[1:-1], "Dropoff time")
+        res_data = change_title_name(res_data, 'Drop off status', 'Dropoff status')
+        res_data = change_title_name(res_data, 'Drop off remark', 'Dropoff remark')
         res_data = change_title_name(res_data, 'Requested Amount', 'Requested Credit Amount')
 
         # 解决 Reason for complaint 问题
@@ -112,10 +126,10 @@ def preprocessing_data(ending_df, boss2me_df, all_report_df, day):
 
         # 6. 将 res_data 的标题重置为 ending 的标题
         columns_list = list(big_sheet.columns)
-        columns_list.insert(0, 'Latest Dropoff Time')
-        columns_list.insert(0, 'Earliest Dropoff Time')
-        columns_list.insert(0, 'Latest Dropoff Date')
-        columns_list.insert(0, 'Earliest Dropoff Date')
+        columns_list.insert(0, 'Latest dropoff time')
+        columns_list.insert(0, 'Earliest dropoff time')
+        columns_list.insert(0, 'OTD latest dropoff date')
+        columns_list.insert(0, 'OTD earliest Dropoff Date')
         columns_list.append('DELIVERY_DATE')
         # columns_list.append('Reason for Complaint')
         try:

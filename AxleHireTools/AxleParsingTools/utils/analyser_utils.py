@@ -103,7 +103,7 @@ def get_pickup_and_delivery_status(data_frame_row, day, policy):
                     else:
 
                         data_frame_row = write_in_delivery_comments(data_frame_row,
-                                                                    f'pickup ok but delivery late for {delivery_diff} days')
+                                                                    f'Pickup ok but delivery late for {delivery_diff} days')
                         return data_frame_row
         # 如果 pick 早于 12 点
         else:
@@ -127,7 +127,7 @@ def get_pickup_and_delivery_status(data_frame_row, day, policy):
                     else:
 
                         data_frame_row = write_in_delivery_comments(data_frame_row,
-                                                                    f'pickup ok but delivery late for {delivery_diff} days')
+                                                                    f'Pickup ok but delivery late for {delivery_diff} days')
                         return data_frame_row
         return data_frame_row
 
@@ -153,7 +153,7 @@ def get_pickup_and_delivery_status(data_frame_row, day, policy):
                         data_frame_row = copy_reason(data_frame_row, 118)
 
                         data_frame_row = write_in_delivery_comments(data_frame_row,
-                                                                    f'pickup late for {pickup_diff} day and  delivery late for same day')
+                                                                    f'Pickup late for {pickup_diff} day and  delivery late for same day')
 
                         return data_frame_row
                 # pickup 一天， delivery 多天
@@ -161,11 +161,11 @@ def get_pickup_and_delivery_status(data_frame_row, day, policy):
                     data_frame_row = copy_reason(data_frame_row, 119)
                     if delivery_diff == 1:
                         data_frame_row = write_in_delivery_comments(data_frame_row,
-                                                                    f'pickup late for 1 day and delivery late for 1 day')
+                                                                    f'Pickup late for 1 day and delivery late for 1 day')
                         return data_frame_row
                     else:
                         data_frame_row = write_in_delivery_comments(data_frame_row,
-                                                                    f'pickup late for 1 day and delivery late for {delivery_diff} days')
+                                                                    f'Pickup late for 1 day and delivery late for {delivery_diff} days')
                         return data_frame_row
                 return data_frame_row
 
@@ -199,7 +199,7 @@ def get_pickup_and_delivery_status(data_frame_row, day, policy):
                         data_frame_row = copy_reason(data_frame_row, 118)
 
                         data_frame_row = write_in_delivery_comments(data_frame_row,
-                                                                    f'pickup late for {pickup_diff} day and  delivery late for same day')
+                                                                    f'Pickup late for {pickup_diff} day and  delivery late for same day')
 
                         return data_frame_row
 
@@ -208,11 +208,11 @@ def get_pickup_and_delivery_status(data_frame_row, day, policy):
                     data_frame_row = copy_reason(data_frame_row, 119)
                     if delivery_diff == 1:
                         data_frame_row = write_in_delivery_comments(data_frame_row,
-                                                                    f'pickup late for 1 day and delivery late for 1 day')
+                                                                    f'Pickup late for 1 day and delivery late for 1 day')
                         return data_frame_row
                     else:
                         data_frame_row = write_in_delivery_comments(data_frame_row,
-                                                                    f'pickup late for 1 day and delivery late for {delivery_diff} days')
+                                                                    f'Pickup late for 1 day and delivery late for {delivery_diff} days')
                         return data_frame_row
                 return data_frame_row
 
@@ -246,7 +246,7 @@ def get_pickup_and_delivery_status(data_frame_row, day, policy):
 
                 else:
                     data_frame_row = write_in_delivery_comments(data_frame_row,
-                                                                f'pickup ok but delivery late for {delivery_diff} days')
+                                                                f'Pickup ok but delivery late for {delivery_diff} days')
                     return data_frame_row
             return data_frame_row
 

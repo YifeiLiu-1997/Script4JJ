@@ -47,7 +47,7 @@ class Main(object):
         self.all_report_df = None
         self.save_folder_path = StringVar()
         self.result_df = None
-        self.version = 'V1.0'
+        self.version = 'V3.0'
         self.day = None
         self.structured_df = None
         self.message = None
@@ -253,10 +253,13 @@ class Main(object):
 
         message = '版本 V2.0\n更新内容:\n'
         message += '''根据最新的2023.3.15版本开发'''
+        message = '版本 V3.0\n更新内容:\n'
+        message += '''根据最新的2024.3.27版本开发'''
         messagebox.showinfo(
             title='更新内容',
             message=message
         )
+
 
     def run(self):
         self.window.title(f'AxleHireTools : version: {self.version}')

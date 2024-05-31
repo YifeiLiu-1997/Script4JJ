@@ -42,6 +42,7 @@ def preprocessing_data(ending_df, boss2me_df, all_report_df, day):
         res_data = change_title_name(res_data, 'Drop off remark', 'Dropoff Remark')
         res_data = change_title_name(res_data, 'Requested Amount', 'Requested Credit Amount')
 
+
         # 解决 Reason for complaint 问题
         if 'Issue' in same.columns:
             res_data['Reason for Complaint'] = same['Issue']
@@ -72,6 +73,7 @@ def preprocessing_data(ending_df, boss2me_df, all_report_df, day):
         columns_list.insert(0, 'Earliest dropoff time')
         columns_list.insert(0, 'OTD latest dropoff date')
         columns_list.insert(0, 'OTD earliest Dropoff Date')
+        columns_list.insert(0, 'Shipment notes')
         columns_list.append('DELIVERY_DATE')
 
         res_data = pd.DataFrame(columns=columns_list, dtype='object')
@@ -81,7 +83,7 @@ def preprocessing_data(ending_df, boss2me_df, all_report_df, day):
         # boss2me = change_title_name(boss2me, re.search(r'\'[Tt](racking |RACKING_)(#| Number| code| Code|CODE)\'',
         #                                                str(boss2me.columns)).group(0)[1:-1], "Tracking Code")
         boss2me = boss2me.rename(columns={'TRACKING_CODE': "Tracking code"})
-        print(boss2me.columns)
+
         # 2. 合并 boss 和 report 合并为 same
         same = pd.merge(boss2me, report, how='left', on='Tracking code')
 
@@ -117,6 +119,9 @@ def preprocessing_data(ending_df, boss2me_df, all_report_df, day):
         res_data = change_title_name(res_data, 'Drop off remark', 'Dropoff remark')
         res_data = change_title_name(res_data, 'Requested Amount', 'Requested Credit Amount')
 
+        # 2024-4-19 新加
+        res_data = change_title_name(res_data, 'Dropoff Reason', 'Dropoff note')
+
         # 解决 Reason for complaint 问题
         if 'Issue' in same.columns:
             res_data['Reason for Complaint'] = same['Issue']
@@ -133,6 +138,7 @@ def preprocessing_data(ending_df, boss2me_df, all_report_df, day):
         columns_list.insert(0, 'Earliest dropoff time')
         columns_list.insert(0, 'OTD latest dropoff date')
         columns_list.insert(0, 'OTD earliest Dropoff Date')
+        columns_list.insert(0, 'Shipment notes')
         columns_list.append('DELIVERY_DATE')
         # columns_list.append('Reason for Complaint')
         try:
@@ -140,7 +146,7 @@ def preprocessing_data(ending_df, boss2me_df, all_report_df, day):
         except ValueError:
             columns_list.append('Reason for Complaint')
             res_data.columns = columns_list
-
+        # print(res_data)
         return res_data
 
 

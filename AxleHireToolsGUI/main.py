@@ -35,6 +35,32 @@ from utils.analyser import Wednesday, Thursday, Analyser
 warnings.filterwarnings('ignore')
 
 
+def update_2024_5_31(func):
+    def wrapper(*args, **kwargs):
+        # 修改之前的 res_df
+        res_df = func(*args, **kwargs)
+
+        # 将 shipment note 放到 dropoff reason code 之后
+        index_of_B = res_df.columns.get_loc('Dropoff Reason')
+        new_order = [col for col in res_df.columns if col != 'Shipment notes']
+        new_order.insert(index_of_B, 'Shipment notes')
+        res_df = res_df[new_order]
+
+        # 将 Assignment notes 放到 Assignment ID 后面
+        index_of_B = res_df.columns.get_loc('Assignment ID')
+        new_order = [col for col in res_df.columns if col != 'Assignment notes']
+        new_order.insert(index_of_B, 'Assignment notes')
+        res_df = res_df[new_order]
+
+        # 将 Earliest dropoff time 和 Latest dropoff time 修改列名
+        res_df = res_df.rename(columns={'Earliest dropoff time': 'OTD Earliest dropoff time'})
+        res_df = res_df.rename(columns={'Latest dropoff time': 'OTD Latest dropoff time'})
+
+        return res_df
+
+    return wrapper
+
+
 class Main(object):
     def __init__(self):
         self.window = Tk()
@@ -52,14 +78,17 @@ class Main(object):
         self.structured_df = None
         self.message = None
         self.select_box = None
+        self.claim = None
 
     def _get_ending(self, *args):
-        if self.select_box.get() == 'HF F75':
+        if self.select_box.get() == 'HF':
             ending_path = os.getcwd() + '/utils/files/ending_wednesday.csv'
-            self.ending_show.set('HF F75')
+            self.claim = 'HF'
+            self.ending_show.set('HF')
         else:
-            ending_path = os.getcwd() + '/utils/files/ending_thursday.csv'
-            self.ending_show.set('others')
+            ending_path = os.getcwd() + '/utils/files/ending_wednesday.csv'
+            self.claim = 'F75'
+            self.ending_show.set('F75')
 
         self.ending_path.set(ending_path)
         self.window.update()
@@ -183,7 +212,8 @@ class Main(object):
             # 列名先改一下
             self.structured_df.rename(columns={'Drop off Time': 'Drop off time'}, inplace=True)
 
-            wednesday = Wednesday(self.structured_df, policy=self.policy.get())
+            # TODO: 2024-5-31 分开 HF 和 F75
+            wednesday = Wednesday(self.structured_df, policy=self.policy.get(), claim=self.claim)
             self.result_df = wednesday.analyse()
 
             # 列名先改回来
@@ -191,33 +221,22 @@ class Main(object):
 
             # 生成 csv
             res_df = self.result_df.copy()
-            try:
-                res_df = res_df.drop(columns=['Week#', 'Updated Reason Code'])
-            except BaseException:
-                pass
-            date_time = datetime.datetime.now().strftime('%Y-%m-%d %H-%M-%S')
-            res_df.drop_duplicates(['Tracking Code'], inplace=True)
 
-            # 2023-11-8 修改列名
-            # Scheduled Delivery Date: OTD earliest Dropoff Date
-            # Label: Shipment label
-            # 删除 Driver Name
-            # Courier: Courier name
-            res_df.rename(columns={'Scheduled Delivery Date': 'OTD earliest Dropoff Date',
-                                   'Label': 'Shipment label',
-                                   'Courier': 'Courier name'}, inplace=True)
-            res_df.drop(columns=['Driver Name'], inplace=True)
+            # TODO: 这一块会经常改动，附加各种信息
+            res_df = get_res_df(res_df)
+
+            date_time = datetime.datetime.now().strftime('%Y-%m-%d %H-%M-%S')
             res_df.to_csv(str(self.save_folder_path.get()) + '/HF first' + date_time + '.csv', index=False)
 
-            analyser = Analyser(self.window, self.result_df, self.save_folder_path.get(), '3')
-            analyser.run()
+            # 2024-5-31 弃用下方的 Analyser
+            # analyser = Analyser(self.window, self.result_df, self.save_folder_path.get(), '3')
+            # analyser.run()
 
     def concat_all_csv(self):
         concat = concat_csv.Concat(self.window)
         concat.run()
 
     def open_downloader(self):
-
         download = downloader.DownLoader(self.window)
         download.run()
 
@@ -251,20 +270,22 @@ class Main(object):
     @staticmethod
     def show_update():
 
-        message = '版本 V2.0\n更新内容:\n'
-        message += '''根据最新的2023.3.15版本开发'''
-        message = '版本 V3.0\n更新内容:\n'
-        message += '''根据最新的2024.3.27版本开发'''
+        # message = '版本 V2.0\n更新内容:\n'
+        # message += '''根据最新的2023.3.15版本开发\n'''
+        # message += '版本 V3.0\n更新内容:\n'
+        # message += '''根据最新的2024.3.27版本开\n'''
+        message = '版本 V4.0\n更新内容:\n'
+        message += '''根据2024.5.31重新定制
+1. 独立开HF与F75，F75 不存在 Axlinehaul 问题。
+2. 生成的csv自动修改Region与一些新添的列。'''
         messagebox.showinfo(
             title='更新内容',
             message=message
         )
 
-
     def run(self):
         self.window.title(f'AxleHireTools : version: {self.version}')
         self.window.geometry('850x450')
-
 
         # label ending
         self.select_box = ttk.Combobox(
@@ -272,7 +293,7 @@ class Main(object):
             textvariable=self.ending_show
         )
         self.select_box.place(x=100, y=100)
-        self.select_box['values'] = ['HF F75', 'others']
+        self.select_box['values'] = ['HF', 'F75']
         self.select_box.bind("<<ComboboxSelected>>", self._get_ending)
 
         # label boss2me
@@ -303,6 +324,30 @@ class Main(object):
         Button(self.window, text='update comments', width='15', command=self.show_update).place(x=510, y=350)
 
         self.window.mainloop()
+
+
+@update_2024_5_31
+def get_res_df(res_df):
+    try:
+        res_df = res_df.drop(columns=['Week#', 'Updated Reason Code'])
+    except BaseException:
+        pass
+
+    res_df.drop_duplicates(['Tracking Code'], inplace=True)
+
+    # 2023-11-8 修改列名
+    # Scheduled Delivery Date: OTD earliest Dropoff Date
+    # Label: Shipment label
+    # 删除 Driver Name
+    # Courier: Courier name
+    res_df.rename(columns={'Scheduled Delivery Date': 'OTD earliest Dropoff Date',
+                           'Label': 'Shipment label',
+                           'Courier': 'Courier name'}, inplace=True)
+    res_df.drop(columns=['Driver Name'], inplace=True)
+    return res_df
+
+
+
 
 
 if __name__ == '__main__':

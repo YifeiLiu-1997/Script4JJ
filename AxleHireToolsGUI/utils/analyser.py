@@ -765,9 +765,11 @@ class Thursday(object):
 
 
 class Wednesday(object):
-    def __init__(self, init_df, policy):
+    def __init__(self, init_df, policy, claim):
         self.init_df = init_df
         self.policy = policy
+        self.claim = claim
+        print(self.claim)
 
     def analyse(self):
         res_data = self.init_df.copy()
@@ -779,7 +781,7 @@ class Wednesday(object):
             # 填入 week √
             temp = analyser_utils.get_week_num(temp)
             # 分析 status in 2023-3-15
-            res_data.iloc[index: index + 1, :] = analyser_utils.get_status_2023_3_15(temp, day='3', policy=self.policy)
+            res_data.iloc[index: index + 1, :] = analyser_utils.get_status_2023_3_15(temp, day='3', policy=self.policy, claim=self.claim)
             result = pd.concat([result, temp])
         result['Updated Reason Code'] = result['AH Assessment']
         return result

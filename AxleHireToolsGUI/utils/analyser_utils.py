@@ -341,7 +341,7 @@ def format_3(date):
         return False
 
 
-def get_status_2023_3_15(data_frame_row, day, policy):
+def get_status_2023_3_15(data_frame_row, day, policy, claim):
     """
     本周的HF和F75做法有一些改动。请按照以下方法做：
     1、Inbound阶段，先做inbound missing，inbound damaged 以及inbound是空着的，空着的就写package not received by AX那个code就行。
@@ -418,13 +418,21 @@ def get_status_2023_3_15(data_frame_row, day, policy):
             # 如果 inbound 当天晚于 12 点
             if time_upper_than(data_frame_row['Inbound Scan Time'].values[0], '12:00', 0):
                 # 如果是 SDLAX
-                if 'SDLAX'.lower() in str(data_frame_row['Region Code'].values[0]).lower():
-                    # AX linehaul issue | AX linehaul late | Late
-                    data_frame_row = copy_reason(data_frame_row, 28)
-                    data_frame_row['Inbound Comments'] = ['AX linehaul late for same day']
-                    # change AX linehaul late -> AX linehaul late for same day
-                    data_frame_row['Delivery Comments'] = ['AX linehaul late for same day']
-                # 除 SDLAX 以外的 Region
+                # TODO: 2024-5-31 加入
+                if claim == 'HF':
+                    if 'SDLAX'.lower() in str(data_frame_row['Region Code'].values[0]).lower():
+                        # AX linehaul issue | AX linehaul late | Late
+                        data_frame_row = copy_reason(data_frame_row, 28)
+                        data_frame_row['Inbound Comments'] = ['AX linehaul late for same day']
+                        # change AX linehaul late -> AX linehaul late for same day
+                        data_frame_row['Delivery Comments'] = ['AX linehaul late for same day']
+                    # 除 SDLAX 以外的 Region
+                    else:
+                        # Not Due to AX performance | Inbound late | Received late
+                        data_frame_row = copy_reason(data_frame_row, 24)
+                        data_frame_row['Inbound Comments'] = ['Inbound late for same day']
+                        # change Inbound late -> Inbound late for same day
+                        data_frame_row['Delivery Comments'] = ['Inbound late for same day']
                 else:
                     # Not Due to AX performance | Inbound late | Received late
                     data_frame_row = copy_reason(data_frame_row, 24)
@@ -436,13 +444,21 @@ def get_status_2023_3_15(data_frame_row, day, policy):
             # 2天以上需要加小尾巴
             tails = '' if inbound_diff == 1 else 's'
             # 如果是 SDLAX
-            if 'SDLAX'.lower() in str(data_frame_row['Region Code'].values[0]).lower():
-                # AX linehaul issue | AX linehaul late | Late
-                data_frame_row = copy_reason(data_frame_row, 28)
-                data_frame_row['Inbound Comments'] = [f'AX linehaul late for {inbound_diff} day{tails}']
-                # change AX linehaul late -> AX linehaul late for same day
-                data_frame_row['Delivery Comments'] = [f'AX linehaul late for {inbound_diff} day{tails}']
-            # 除 SDLAX 以外的 Region
+            # TODO: 2024-5-31 加入
+            if claim == 'HF':
+                if 'SDLAX'.lower() in str(data_frame_row['Region Code'].values[0]).lower():
+                    # AX linehaul issue | AX linehaul late | Late
+                    data_frame_row = copy_reason(data_frame_row, 28)
+                    data_frame_row['Inbound Comments'] = [f'AX linehaul late for {inbound_diff} day{tails}']
+                    # change AX linehaul late -> AX linehaul late for same day
+                    data_frame_row['Delivery Comments'] = [f'AX linehaul late for {inbound_diff} day{tails}']
+                # 除 SDLAX 以外的 Region
+                else:
+                    # Not Due to AX performance | Inbound late | Received late
+                    data_frame_row = copy_reason(data_frame_row, 24)
+                    data_frame_row['Inbound Comments'] = [f'Inbound late for {inbound_diff} day{tails}']
+                    # change Inbound late -> Inbound late for same day
+                    data_frame_row['Delivery Comments'] = [f'Inbound late for {inbound_diff} day{tails}']
             else:
                 # Not Due to AX performance | Inbound late | Received late
                 data_frame_row = copy_reason(data_frame_row, 24)
@@ -488,14 +504,23 @@ def get_status_2023_3_15(data_frame_row, day, policy):
             # 如果 inbound 当天晚于 12 点
             if time_upper_than(data_frame_row['Inbound Scan Time'].values[0], '12:00', 0):
                 # 如果是 SDLAX
-                if 'SDLAX'.lower() in str(data_frame_row['Region Code'].values[0]).lower():
-                    # AX linehaul issue | AX linehaul late | Late
-                    data_frame_row = copy_reason(data_frame_row, 28, rewrite=True)
-                    data_frame_row['Inbound Comments'] = ['AX linehaul late for same day']
-                    # change AX linehaul late -> AX linehaul late for same day
-                    data_frame_row['Delivery Comments'] = ['AX linehaul late for same day']
-                    return data_frame_row
-                # 除 SDLAX 以外的 Region
+                # TODO: 2024-5-31 加入
+                if claim == 'HF':
+                    if 'SDLAX'.lower() in str(data_frame_row['Region Code'].values[0]).lower():
+                        # AX linehaul issue | AX linehaul late | Late
+                        data_frame_row = copy_reason(data_frame_row, 28, rewrite=True)
+                        data_frame_row['Inbound Comments'] = ['AX linehaul late for same day']
+                        # change AX linehaul late -> AX linehaul late for same day
+                        data_frame_row['Delivery Comments'] = ['AX linehaul late for same day']
+                        return data_frame_row
+                    # 除 SDLAX 以外的 Region
+                    else:
+                        # Not Due to AX performance | Inbound late | Received late
+                        data_frame_row = copy_reason(data_frame_row, 24, rewrite=True)
+                        data_frame_row['Inbound Comments'] = ['Inbound late for same day']
+                        # change Inbound late -> Inbound late for same day
+                        data_frame_row['Delivery Comments'] = ['Inbound late for same day']
+                        return data_frame_row
                 else:
                     # Not Due to AX performance | Inbound late | Received late
                     data_frame_row = copy_reason(data_frame_row, 24, rewrite=True)
@@ -508,14 +533,23 @@ def get_status_2023_3_15(data_frame_row, day, policy):
             # 2天以上需要加小尾巴
             tails = '' if inbound_diff == 1 else 's'
             # 如果是 SDLAX
-            if 'SDLAX'.lower() in str(data_frame_row['Region Code'].values[0]).lower():
-                # AX linehaul issue | AX linehaul late | Late
-                data_frame_row = copy_reason(data_frame_row, 28, rewrite=True)
-                data_frame_row['Inbound Comments'] = [f'AX linehaul late for {inbound_diff} day{tails}']
-                # change AX linehaul late -> AX linehaul late for same day
-                data_frame_row['Delivery Comments'] = [f'AX linehaul late for {inbound_diff} day{tails}']
-                return data_frame_row
-            # 除 SDLAX 以外的 Region
+            # TODO: 2024-5-31 加入
+            if claim == 'HF':
+                if 'SDLAX'.lower() in str(data_frame_row['Region Code'].values[0]).lower():
+                    # AX linehaul issue | AX linehaul late | Late
+                    data_frame_row = copy_reason(data_frame_row, 28, rewrite=True)
+                    data_frame_row['Inbound Comments'] = [f'AX linehaul late for {inbound_diff} day{tails}']
+                    # change AX linehaul late -> AX linehaul late for same day
+                    data_frame_row['Delivery Comments'] = [f'AX linehaul late for {inbound_diff} day{tails}']
+                    return data_frame_row
+                # 除 SDLAX 以外的 Region
+                else:
+                    # Not Due to AX performance | Inbound late | Received late
+                    data_frame_row = copy_reason(data_frame_row, 24, rewrite=True)
+                    data_frame_row['Inbound Comments'] = [f'Inbound late for {inbound_diff} day{tails}']
+                    # change Inbound late -> Inbound late for same day
+                    data_frame_row['Delivery Comments'] = [f'Inbound late for {inbound_diff} day{tails}']
+                    return data_frame_row
             else:
                 # Not Due to AX performance | Inbound late | Received late
                 data_frame_row = copy_reason(data_frame_row, 24, rewrite=True)
@@ -534,7 +568,7 @@ def get_status_2023_3_15(data_frame_row, day, policy):
             data_frame_row['Drop off status'].values[0] != 'FAILED':
         pickup_diff = date_subtract(data_frame_row['Pickup Date'].values[0],
                                     data_frame_row['Scheduled Delivery Date'].values[0])
-        print(pickup_diff, 'diff')
+        # print(pickup_diff, 'diff')
         inbound_diff = date_subtract(data_frame_row['Inbound Scan Date (Linehaul)'].values[0],
                                      data_frame_row['Scheduled Delivery Date'].values[0])
         # pickup 只看晚于 1 天的，且 inbound 不晚
@@ -642,14 +676,23 @@ def get_status_2023_3_15(data_frame_row, day, policy):
                 # 如果 inbound 当天晚于 12 点
                 if time_upper_than(data_frame_row['Inbound Scan Time'].values[0], '12:00', 0):
                     # 如果是 SDLAX
-                    if 'SDLAX'.lower() in str(data_frame_row['Region Code'].values[0]).lower():
-                        # AX linehaul issue | AX linehaul late | Late
-                        data_frame_row = copy_reason(data_frame_row, 28, rewrite=True)
-                        data_frame_row['Inbound Comments'] = ['AX linehaul late for same day']
-                        # change AX linehaul late -> AX linehaul late for same day
-                        data_frame_row['Delivery Comments'] = ['AX linehaul late for same day']
-                        return data_frame_row
-                    # 除 SDLAX 以外的 Region
+                    # TODO: 2024-5-31 加入
+                    if claim == 'HF':
+                        if 'SDLAX'.lower() in str(data_frame_row['Region Code'].values[0]).lower():
+                            # AX linehaul issue | AX linehaul late | Late
+                            data_frame_row = copy_reason(data_frame_row, 28, rewrite=True)
+                            data_frame_row['Inbound Comments'] = ['AX linehaul late for same day']
+                            # change AX linehaul late -> AX linehaul late for same day
+                            data_frame_row['Delivery Comments'] = ['AX linehaul late for same day']
+                            return data_frame_row
+                        # 除 SDLAX 以外的 Region
+                        else:
+                            # Not Due to AX performance | Inbound late | Received late
+                            data_frame_row = copy_reason(data_frame_row, 24, rewrite=True)
+                            data_frame_row['Inbound Comments'] = ['Inbound late for same day']
+                            # change Inbound late -> Inbound late for same day
+                            data_frame_row['Delivery Comments'] = ['Inbound late for same day']
+                            return data_frame_row
                     else:
                         # Not Due to AX performance | Inbound late | Received late
                         data_frame_row = copy_reason(data_frame_row, 24, rewrite=True)
@@ -662,14 +705,23 @@ def get_status_2023_3_15(data_frame_row, day, policy):
                 # 2天以上需要加小尾巴
                 tails = '' if inbound_diff == 1 else 's'
                 # 如果是 SDLAX
-                if 'SDLAX'.lower() in str(data_frame_row['Region Code'].values[0]).lower():
-                    # AX linehaul issue | AX linehaul late | Late
-                    data_frame_row = copy_reason(data_frame_row, 28, rewrite=True)
-                    data_frame_row['Inbound Comments'] = [f'AX linehaul late for {inbound_diff} day{tails}']
-                    # change AX linehaul late -> AX linehaul late for same day
-                    data_frame_row['Delivery Comments'] = [f'AX linehaul late for {inbound_diff} day{tails}']
-                    return data_frame_row
+                # TODO: 2024-5-31 加入
+                if claim == 'HF':
+                    if 'SDLAX'.lower() in str(data_frame_row['Region Code'].values[0]).lower():
+                        # AX linehaul issue | AX linehaul late | Late
+                        data_frame_row = copy_reason(data_frame_row, 28, rewrite=True)
+                        data_frame_row['Inbound Comments'] = [f'AX linehaul late for {inbound_diff} day{tails}']
+                        # change AX linehaul late -> AX linehaul late for same day
+                        data_frame_row['Delivery Comments'] = [f'AX linehaul late for {inbound_diff} day{tails}']
+                        return data_frame_row
                 # 除 SDLAX 以外的 Region
+                    else:
+                        # Not Due to AX performance | Inbound late | Received late
+                        data_frame_row = copy_reason(data_frame_row, 24, rewrite=True)
+                        data_frame_row['Inbound Comments'] = [f'Inbound late for {inbound_diff} day{tails}']
+                        # change Inbound late -> Inbound late for same day
+                        data_frame_row['Delivery Comments'] = [f'Inbound late for {inbound_diff} day{tails}']
+                        return data_frame_row
                 else:
                     # Not Due to AX performance | Inbound late | Received late
                     data_frame_row = copy_reason(data_frame_row, 24, rewrite=True)
@@ -710,12 +762,12 @@ def get_status_2023_3_15(data_frame_row, day, policy):
                     data_frame_row['AH Assessment'] = [f'Pickup Late']
 
                     data_frame_row = copy_reason(data_frame_row, 118, rewrite=True)
-                    data_frame_row['Delivery Comments'] = [f'pickup late for {pickup_diff} day{tails} '
+                    data_frame_row['Delivery Comments'] = [f'Pickup late for {pickup_diff} day{tails} '
                                                            f'and delivery late for same day']
                 else:
                     # 如果 drop 当天晚了， pickup 没晚
                     data_frame_row = copy_reason(data_frame_row, 118, rewrite=True)
-                    data_frame_row['Delivery Comments'] = [f'pickup ok but delivery late for same day']
+                    data_frame_row['Delivery Comments'] = [f'Pickup ok but delivery late for same day']
 
         # drop 晚于一天
         if delivery_diff > 0:
@@ -731,13 +783,13 @@ def get_status_2023_3_15(data_frame_row, day, policy):
                     data_frame_row['AH Assessment'] = [f'Pickup Late']
 
                     data_frame_row = copy_reason(data_frame_row, 118, rewrite=True)
-                    data_frame_row['Delivery Comments'] = [f'pickup late for {pickup_diff} day{tails} '
+                    data_frame_row['Delivery Comments'] = [f'Pickup late for {pickup_diff} day{tails} '
                                                            f'and delivery late for same day']
                     return data_frame_row
                 # 如果 drop 配送时间晚了， pickup 没晚
                 else:
                     data_frame_row = copy_reason(data_frame_row, 118, rewrite=True)
-                    data_frame_row['Delivery Comments'] = [f'pickup ok but delivery late for same day']
+                    data_frame_row['Delivery Comments'] = [f'Pickup ok but delivery late for same day']
                     return data_frame_row
             # drop 只日期晚了
             else:
@@ -751,13 +803,13 @@ def get_status_2023_3_15(data_frame_row, day, policy):
                     data_frame_row['AH Assessment'] = [f'Pickup Late']
 
                     data_frame_row = copy_reason(data_frame_row, 118, rewrite=True)
-                    data_frame_row['Delivery Comments'] = [f'pickup late for {pickup_diff} day{tails} '
+                    data_frame_row['Delivery Comments'] = [f'Pickup late for {pickup_diff} day{tails} '
                                                            f'and delivery late for {delivery_diff} day{delivery_tails}']
                     return data_frame_row
                 # 如果 drop 配送时间晚了， pickup 没晚
                 data_frame_row = copy_reason(data_frame_row, 118, rewrite=True)
                 data_frame_row['Delivery Comments'] = [
-                    f'pickup ok but delivery late for {delivery_diff} day{delivery_tails}']
+                    f'Pickup ok but delivery late for {delivery_diff} day{delivery_tails}']
                 return data_frame_row
 
     # 4）看照片的时候主要注意看那些放在lobby, mail locker或者inside gate的那些，是不是客户有指定放在这些地方，也可以参考客户给的说明那一列。

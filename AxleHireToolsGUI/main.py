@@ -35,7 +35,7 @@ from utils.analyser import Wednesday, Thursday, Analyser
 warnings.filterwarnings('ignore')
 
 
-def update_2024_5_31(func):
+def update_2024_9_19(func):
     def wrapper(*args, **kwargs):
         # 修改之前的 res_df
         res_df = func(*args, **kwargs)
@@ -56,7 +56,34 @@ def update_2024_5_31(func):
         res_df = res_df.rename(columns={'Earliest dropoff time': 'OTD Earliest dropoff time'})
         res_df = res_df.rename(columns={'Latest dropoff time': 'OTD Latest dropoff time'})
 
-        return res_df
+        # 2024-09-19 最前面加4列空列 SUBCATEGORY (group)	COMPLAINT	AH Assessment	Comments
+        new_columns = ['SUBCATEGORY (group)', 'COMPLAINT', 'AH Assessment', 'Comments']
+        res_df = pd.concat([pd.DataFrame(columns=new_columns), res_df], axis=1)
+
+        # 2024-09-19 从倒数第4列后面，加3列空列 SCR	NOTD Reason Code	Geocoded Issues
+        index_of_penultimate = len(res_df.columns) - 4
+        new_columns_end = ['Geocoded Issues', 'NOTD Reason Code', 'SCR']
+        for col in new_columns_end:
+            res_df.insert(index_of_penultimate, col, '')
+
+        # 2024-09-19 从倒数第 12
+        index_of_penultimate = len(res_df.columns) - 12
+        res_df.insert(index_of_penultimate, 'ANS', '')
+
+        # 创建 DataFrame 副本，避免直接修改原始 DataFrame
+        updated_df = res_df.copy()
+
+        # 遍历每一行，检查并更新条件
+        for index, row in updated_df.iterrows():
+            # 条件1：'Pickup Comments' 列中值为 '需要shipment' 的，设置 'ANS' 为 'ship'
+            if row['Pickup Comments'] == '需要看shipment history':
+                updated_df.at[index, 'ANS'] = 'ship'
+
+            # 条件2：'Drop off status' 列中值为 'FAILED' 的，设置 'ANS' 为 'fail'
+            if row['Drop off status'] == 'FAILED':
+                updated_df.at[index, 'ANS'] = 'fail'
+
+        return updated_df
 
     return wrapper
 
@@ -212,7 +239,6 @@ class Main(object):
             # 列名先改一下
             self.structured_df.rename(columns={'Drop off Time': 'Drop off time'}, inplace=True)
 
-            # TODO: 2024-5-31 分开 HF 和 F75
             wednesday = Wednesday(self.structured_df, policy=self.policy.get(), claim=self.claim)
             self.result_df = wednesday.analyse()
 
@@ -227,10 +253,6 @@ class Main(object):
 
             date_time = datetime.datetime.now().strftime('%Y-%m-%d %H-%M-%S')
             res_df.to_csv(str(self.save_folder_path.get()) + '/HF first' + date_time + '.csv', index=False)
-
-            # 2024-5-31 弃用下方的 Analyser
-            # analyser = Analyser(self.window, self.result_df, self.save_folder_path.get(), '3')
-            # analyser.run()
 
     def concat_all_csv(self):
         concat = concat_csv.Concat(self.window)
@@ -274,10 +296,16 @@ class Main(object):
         # message += '''根据最新的2023.3.15版本开发\n'''
         # message += '版本 V3.0\n更新内容:\n'
         # message += '''根据最新的2024.3.27版本开\n'''
-        message = '版本 V4.0\n更新内容:\n'
+        #         message = '版本 V4.0\n更新内容:\n'
+        #         message += '''根据2024.5.31重新定制
+        # 1. 独立开HF与F75，F75 不存在 Axlinehaul 问题。
+        # 2. 生成的csv自动修改Region与一些新添的列。'''
+        message = '版本 V2024-09-19\n更新内容:\n'
         message += '''根据2024.5.31重新定制
 1. 独立开HF与F75，F75 不存在 Axlinehaul 问题。
-2. 生成的csv自动修改Region与一些新添的列。'''
+2. 生成的csv自动修改Region与一些新添的列。
+3. 生成的结果直接可以复制到原 claim 中
+4. 自动标注 ship 和 fail 和 pic 到 ans 列中，更加方便'''
         messagebox.showinfo(
             title='更新内容',
             message=message
@@ -326,7 +354,7 @@ class Main(object):
         self.window.mainloop()
 
 
-@update_2024_5_31
+@update_2024_9_19
 def get_res_df(res_df):
     try:
         res_df = res_df.drop(columns=['Week#', 'Updated Reason Code'])
@@ -345,9 +373,6 @@ def get_res_df(res_df):
                            'Courier': 'Courier name'}, inplace=True)
     res_df.drop(columns=['Driver Name'], inplace=True)
     return res_df
-
-
-
 
 
 if __name__ == '__main__':

@@ -40,8 +40,6 @@ class Concat(object):
             res_df = pd.concat([res_df, temp_df])
         return res_df, self.folder_path
 
-
-
     def run(self):
         self.window = Toplevel(master=self.root)
         self.window.geometry('1000x120')

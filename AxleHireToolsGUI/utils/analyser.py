@@ -7,12 +7,14 @@ import tqdm
 import pandas as pd
 import AxleHireToolsGUI.utils.analyser_utils as analyser_utils
 import requests
-import cv2
+# import cv2
 import datetime
 
 from AxleHireToolsGUI.const import USER_NAME, USER_PSW
 from tkinter import ttk, Button, messagebox, StringVar, Label, Entry, Toplevel
-from requests_ntlm import HttpNtlmAuth
+
+
+# from requests_ntlm import HttpNtlmAuth
 
 
 class Analyser(object):
@@ -164,12 +166,12 @@ class Analyser(object):
             Button(self.window, text='显示照片', command=self.show_pic).place(x=1100, y=100)
             Button(self.window, text='提交', command=self.hand_in_result).place(x=1300, y=100)
             Button(self.window, text='打开字典', command=self.open_dictionary).place(x=1300, y=200)
-            
+
             # 显示进度
             self.process = StringVar()
             Entry(self.window, width='10', textvariable=self.process).place(x=100, y=300)
             self.process.set(str(self.index) + '/' + str(self.mission_length))
-            
+
             # 绑定按键
             self.window.bind('<Down>', self.next_page)
             self.window.bind('<Up>', self.prev_page)
@@ -280,12 +282,12 @@ class Analyser(object):
             Button(self.window, text='显示照片', command=self.show_pic).place(x=1100, y=100)
             Button(self.window, text='提交', command=self.hand_in_result).place(x=1300, y=100)
             Button(self.window, text='打开字典', command=self.open_dictionary).place(x=1300, y=200)
-            
+
             # 显示进度
             self.process = StringVar()
             Entry(self.window, width='10', textvariable=self.process).place(x=100, y=300)
             self.process.set(str(self.index) + '/' + str(self.mission_length))
-            
+
             # 绑定按键
             self.window.bind('<Down>', self.next_page)
             self.window.bind('<Up>', self.prev_page)
@@ -323,28 +325,28 @@ class Analyser(object):
                 self.customer_id.set(result_dict['shipment']['customer']['phone_number'])
             else:
                 self.customer_id.set('')
-                
+
             # 进度条
             self.process.set(str(self.index) + '/' + str(self.mission_length))
-            
+
             # 一堆逻辑 显示出图片和详细地址文字
             self.window.mainloop()
 
     def next_page(self, event=None):
         self.index = self.index + 1
-        
+
         if self.index >= len(self.data_frame['Tracking Code']):
             # 到达最底下了
             messagebox.showinfo(title='警告', message='没有下一页了')
             self.window.focus_force()
             self.index = self.index - 1
             self.change_data(self.index)
-            
+
         self.change_data(self.index)
-        
+
         # tracing code
         self.tracking_code.set(self.data_frame.loc[self.index, 'Tracking Code'])
-        
+
         # dropoff note
         result_dict = self.get_dict_from_tracking_code(
             tracking_code=self.data_frame.loc[self.index, 'Tracking Code']
@@ -353,17 +355,17 @@ class Analyser(object):
             self.client_comment.set(result_dict['results'][0]['shipment']['dropoff_note'])
         else:
             self.client_comment.set('')
-        
+
         # customer_id
         self.customer_id = StringVar()
         if 'customer' in result_dict['results'][0]['shipment'].keys():
             self.customer_id.set(result_dict['shipment']['customer']['phone_number'])
         else:
             self.customer_id.set('')
-        
+
         # 进度条
         self.process.set(str(self.index) + '/' + str(self.mission_length))
-        
+
         self.temp_window.delete(f'item{self.index - 1}')
 
     def prev_page(self, event=None):
@@ -374,9 +376,9 @@ class Analyser(object):
             self.window.focus_force()
             self.index = self.index + 1
             self.change_data(self.index)
-            
+
         self.change_data(self.index)
-        
+
         # tracing code
         self.tracking_code.set(self.data_frame.loc[self.index, 'Tracking Code'])
 
@@ -395,7 +397,7 @@ class Analyser(object):
             self.customer_id.set(result_dict['shipment']['customer']['phone_number'])
         else:
             self.customer_id.set('')
-            
+
         self.temp_window.delete(f'item{self.index + 1}')
 
     def change_data(self, data_index):
@@ -649,15 +651,15 @@ class Analyser(object):
         # 把 data_frame 根据相同的 tracking code 将五列写入 source_df 返回 res_df
         for index, row in data_frame.iterrows():
             source_df.loc[get_index(data_frame.loc[index, 'Tracking Code'], source_df),
-                          'Issue Category'] = data_frame.loc[index, 'Issue Category']
+            'Issue Category'] = data_frame.loc[index, 'Issue Category']
             source_df.loc[get_index(data_frame.loc[index, 'Tracking Code'], source_df),
-                          'Delivery Comments'] = data_frame.loc[index, 'Delivery Comments']
+            'Delivery Comments'] = data_frame.loc[index, 'Delivery Comments']
             source_df.loc[get_index(data_frame.loc[index, 'Tracking Code'], source_df),
-                          'AH Assessment'] = data_frame.loc[index, 'AH Assessment']
+            'AH Assessment'] = data_frame.loc[index, 'AH Assessment']
             source_df.loc[get_index(data_frame.loc[index, 'Tracking Code'], source_df),
-                          'POD Quality'] = data_frame.loc[index, 'POD Quality']
+            'POD Quality'] = data_frame.loc[index, 'POD Quality']
             source_df.loc[get_index(data_frame.loc[index, 'Tracking Code'], source_df),
-                          'POD Valid?'] = data_frame.loc[index, 'POD Valid?']
+            'POD Valid?'] = data_frame.loc[index, 'POD Valid?']
         return source_df
 
     @staticmethod
@@ -681,16 +683,16 @@ def process_image(img):
     # 填充至 min_side * min_side
     if new_w % 2 != 0 and new_h % 2 == 0:
         top, bottom, left, right = (min_side - new_h) / 2, (min_side - new_h) / 2, (min_side - new_w) / 2 + 1, (
-                    min_side - new_w) / 2
+                min_side - new_w) / 2
     elif new_h % 2 != 0 and new_w % 2 == 0:
         top, bottom, left, right = (min_side - new_h) / 2 + 1, (min_side - new_h) / 2, (min_side - new_w) / 2, (
-                    min_side - new_w) / 2
+                min_side - new_w) / 2
     elif new_h % 2 == 0 and new_w % 2 == 0:
         top, bottom, left, right = (min_side - new_h) / 2, (min_side - new_h) / 2, (min_side - new_w) / 2, (
-                    min_side - new_w) / 2
+                min_side - new_w) / 2
     else:
         top, bottom, left, right = (min_side - new_h) / 2 + 1, (min_side - new_h) / 2, (min_side - new_w) / 2 + 1, (
-                    min_side - new_w) / 2
+                min_side - new_w) / 2
     pad_img = cv2.copyMakeBorder(resize_img, int(top), int(bottom), int(left), int(right), cv2.BORDER_CONSTANT,
                                  value=[0, 0, 0])  # 从图像边界向上,下,左,右扩的像素数目
     u_id = uuid.uuid4()
@@ -727,7 +729,7 @@ def process_image(img):
         top, bottom, left, right = (min_side - new_h) / 2 + 1, (min_side - new_h) / 2, (min_side - new_w) / 2 + 1, (
                 min_side - new_w) / 2
     upscale_img = cv2.copyMakeBorder(resize_img, int(top), int(bottom), int(left), int(right), cv2.BORDER_CONSTANT,
-                                 value=[0, 0, 0])
+                                     value=[0, 0, 0])
     return upscale_img
 
 
@@ -781,7 +783,8 @@ class Wednesday(object):
             # 填入 week √
             temp = analyser_utils.get_week_num(temp)
             # 分析 status in 2023-3-15
-            res_data.iloc[index: index + 1, :] = analyser_utils.get_status_2023_3_15(temp, day='3', policy=self.policy, claim=self.claim)
+            res_data.iloc[index: index + 1, :] = analyser_utils.get_status_2023_3_15(temp, day='3', policy=self.policy,
+                                                                                     claim=self.claim)
             result = pd.concat([result, temp])
         result['Updated Reason Code'] = result['AH Assessment']
         return result

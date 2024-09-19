@@ -6,7 +6,7 @@ import json
 import pandas as pd
 
 from const import USER_PSW, USER_NAME
-from requests_ntlm import HttpNtlmAuth
+# from requests_ntlm import HttpNtlmAuth
 from tkinter import Toplevel, Label, Entry, Button, StringVar, messagebox
 
 
@@ -32,7 +32,7 @@ class DownLoader(object):
         response = session.get(url=url, headers=self.header)
         if response.status_code == 200:
             json_data = json.loads(response.text)
-            response = session.get(url=url+'/download', headers=self.header)
+            response = session.get(url=url + '/download', headers=self.header)
             if 'url' in json_data.keys():
                 with open(file_name, 'wb') as fp:
                     fp.write(response.content)
@@ -72,7 +72,7 @@ class DownLoader(object):
             messagebox.showwarning(title='警告', message='日期范围有误')
         else:
             date_list = [from_date.strftime('%Y/%m/%d')]
-            for i in range(1, diff+1):
+            for i in range(1, diff + 1):
                 date = from_date + datetime.timedelta(days=i)
                 date = date.strftime('%Y/%m/%d')
                 date_list.append(date)
@@ -90,7 +90,8 @@ class DownLoader(object):
         self.date = StringVar()
         Label(self.window, text='输入 client 号（如有多个，请用，（中文逗号）分隔）:').place(x=50, y=20)
         Entry(self.window, textvariable=self.client).place(x=50, y=60)
-        Label(self.window, text='输入日期（形如 2021/11/07 如有多个日期请用,分隔,如果为时间段,请输入形如 2021/11/07-2021/11/09）:')\
+        Label(self.window,
+              text='输入日期（形如 2021/11/07 如有多个日期请用,分隔,如果为时间段,请输入形如 2021/11/07-2021/11/09）:') \
             .place(x=50, y=100)
         Entry(self.window, textvariable=self.date).place(x=50, y=140)
         Button(self.window, text='生成 all_report csv', command=self.confirm).place(x=50, y=190)

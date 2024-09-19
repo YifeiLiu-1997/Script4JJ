@@ -8,7 +8,6 @@ import datetime
 from utils.analyser import Wednesday, Thursday
 from tkinter import Toplevel
 
-
 warnings.filterwarnings('ignore')
 
 
@@ -24,13 +23,16 @@ class Generator(object):
     def get_first_by_already_vlookup_files(self, already_file_path, policy, save_path):
         # 列名先改一下
         already_df = pd.read_csv(already_file_path)
-        already_df.rename(columns={'Drop off Time': 'Drop off time', 'Earliest Dropoff Date': 'Scheduled Delivery Date'}, inplace=True)
+        already_df.rename(
+            columns={'Drop off Time': 'Drop off time', 'Earliest Dropoff Date': 'Scheduled Delivery Date'},
+            inplace=True)
 
         wednesday = Wednesday(already_df, policy=policy)
         result_df = wednesday.analyse()
 
         # 列名先改回来
-        result_df.rename(columns={'Drop off time': 'Drop off Time', 'Scheduled Delivery Date': 'Earliest Dropoff Date'}, inplace=True)
+        result_df.rename(columns={'Drop off time': 'Drop off Time', 'Scheduled Delivery Date': 'Earliest Dropoff Date'},
+                         inplace=True)
 
         # 生成 csv
         res_df = result_df.copy()
@@ -56,7 +58,8 @@ class Generator(object):
         if pd.isna(data_frame_rows['Answer Number'].values[0]):
             return data_frame_rows
 
-        number = int(data_frame_rows['Answer Number'].values[0]) if not isinstance(data_frame_rows['Answer Number'].values[0], str) else data_frame_rows['Answer Number'].values[0]
+        number = int(data_frame_rows['Answer Number'].values[0]) if not isinstance(
+            data_frame_rows['Answer Number'].values[0], str) else data_frame_rows['Answer Number'].values[0]
         # print(type(number))
         # 不是数字，一定是 14 15 apt 这种形式
         if not str(number).isnumeric():
@@ -136,7 +139,7 @@ class Generator(object):
 
 if __name__ == '__main__':
     g = Generator()
-    g.get_final(csv_file=r"D:\Files\work\2023-3-29 HF\DG.csv").\
+    g.get_final(csv_file=r"D:\Files\work\2023-3-29 HF\DG.csv"). \
         to_csv(r"D:\Files\work\2023-3-29 HF\ZL.csv", index=False)
     # g.get_first_by_already_vlookup_files(
     #     already_file_path=r"D:\Files\work\2023-3-1 HF\F75.csv",

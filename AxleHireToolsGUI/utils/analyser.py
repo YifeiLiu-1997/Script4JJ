@@ -5,12 +5,12 @@ import uuid
 import tqdm
 
 import pandas as pd
-import AxleHireToolsGUI.utils.analyser_utils as analyser_utils
+import utils.analyser_utils as analyser_utils
 import requests
 # import cv2
 import datetime
 
-from AxleHireToolsGUI.const import USER_NAME, USER_PSW
+from const import USER_NAME, USER_PSW
 from tkinter import ttk, Button, messagebox, StringVar, Label, Entry, Toplevel
 
 

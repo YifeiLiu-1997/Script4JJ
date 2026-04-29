@@ -335,7 +335,7 @@ class Main(object):
         Button(self.window, text="select", command=self._get_all_report, width='10').place(x=680, y=200)
 
         # label what_you_want
-        Label(self.window, text="generate path:").place(x=100, y=250)
+        Label(self.window, text="generate path :").place(x=100, y=250)
         Entry(self.window, textvariable=self.save_folder_path, width='60').place(x=220, y=250)
         Button(self.window, text="select", command=self._get_save_folder_path, width='10').place(x=680, y=250)
 
